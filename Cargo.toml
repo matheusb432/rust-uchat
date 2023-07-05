@@ -1,8 +1,16 @@
-[package]
-name = "rust-uchat"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[workspace]
+default-members = [
+  "backend/server",
+  "backend/crypto",
+  "backend/query",
+  "frontend",
+  "shared/cookie",
+]
+members = [
+  "backend/server",
+  "backend/crypto",
+  "backend/query",
+  "frontend",
+  "shared/cookie",
+  "tools/project-init",
+]

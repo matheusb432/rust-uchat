@@ -2,12 +2,30 @@
 
 'Build a Full-Stack Twitter Clone with Rust' course code and notes
 
+[Original Course Repository](https://github.com/jayson-lennon/ztm-project-uchat)
+
 ## Updating Dependencies
 
 As the `Cargo.lock` file is included in this repository, you can update the dependencies by running:
 
 ```bash
 cargo update
+```
+
+## Project Init
+
+This will check for the dependencies listed above and attempt to install the Rust
+dependencies. Dependencies which require manual install will provide a link to
+installation instructions.
+
+```bash
+cargo run -p project-init
+```
+
+If on windows, also run:
+
+```bash
+cargo install --locked wasm-bindgen-cli
 ```
 
 ## Notes in Code
