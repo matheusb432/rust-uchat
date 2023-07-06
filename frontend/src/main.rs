@@ -31,4 +31,6 @@ fn main() {
 // NOTE Creating a prelude module for modules that are used frequently
 mod prelude {
     pub use crate::page;
+
+    pub use crate::util::{async_handler, sync_handler};
 }

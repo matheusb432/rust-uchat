@@ -1,7 +1,6 @@
 # NOTE Necessary so just can run on windows without an sh
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
-
 TRUNK_CONFIG_FILE := if os() == "windows" { "Trunk.win.toml" } else { "Trunk.toml" }
 TRUNK_RELEASE_CONFIG_FILE := if os() == "windows" { "Trunk-release.win.toml" } else { "Trunk.toml" }
 

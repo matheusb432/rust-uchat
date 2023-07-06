@@ -3,13 +3,12 @@ target = "frontend/index.html"
 dist = "target/dist"
 release = false
 
-# TODO fix: not working
-# [[hooks]]
-# stage = "build"
-# command = "bash"
-# command_arguments = [
-#     "-c",
-#     "npx tailwindcss -i frontend/src/tailwind.css -o $TRUNK_STAGING_DIR/tailwind.css -m -c frontend/tailwind.config.js",
-# ]
-# * npx tailwindcss -i frontend/src/tailwind.css -o frontend/tailwind.css -m -c frontend/tailwind.config.js
+# ? `target\dist\.stage` is relative to the root of the project, necessary since $TRUNK_STAGING_DIR\\tailwind.css is not working
+[[hooks]]
+stage = "build"
+command = "C:\\Program Files\\Git\\bin\\sh.exe" # `sh` is in the git installation folder
+command_arguments = [
+    "-c",
+    "npx tailwindcss -i frontend/src/tailwind.css -o target/dist/.stage/tailwind.css -m -c frontend/tailwind.config.js",
+]
 
