@@ -1,12 +1,18 @@
 #![allow(non_snake_case)]
 
 use dioxus::prelude::*;
+use dioxus_router::{Route, Router};
 use fermi::use_init_atom_root;
+
+use crate::prelude::*;
 
 pub fn App(cx: Scope) -> Element {
     use_init_atom_root(cx);
-
+    // NOTE `cx.render` renders the result of the rsx! macro
+    // ? The rsx! macro is a macro that returns an `Element` type
     cx.render(rsx! {
-        h1 { "Hello, world!" }
+        Router { 
+            Route { to: page::ACCOUNT_REGISTER, page::Register {} }
+        }
     })
 }

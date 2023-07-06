@@ -6,9 +6,10 @@ release = false
 # TODO fix: not working
 # [[hooks]]
 # stage = "build"
-# command = "C:/Program Files/Git/bin/bash.exe"
+# command = "bash"
 # command_arguments = [
-#     "--login",
 #     "-c",
 #     "npx tailwindcss -i frontend/src/tailwind.css -o $TRUNK_STAGING_DIR/tailwind.css -m -c frontend/tailwind.config.js",
 # ]
+# * npx tailwindcss -i frontend/src/tailwind.css -o frontend/tailwind.css -m -c frontend/tailwind.config.js
+
