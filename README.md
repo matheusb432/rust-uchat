@@ -12,6 +12,14 @@ As the `Cargo.lock` file is included in this repository, you can update the depe
 cargo update
 ```
 
+## Adding a New Dependency
+
+To add a new dependency to one of the crates, run:
+
+```bash
+cargo add -p <crate_name> <dependency>
+```
+
 ## Project Init
 
 This will check for the dependencies listed above and attempt to install the Rust

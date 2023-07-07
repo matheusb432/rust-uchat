@@ -6,6 +6,7 @@
 pub mod util;
 
 pub mod app;
+pub mod components;
 pub mod page;
 
 use cfg_if::cfg_if;
@@ -32,5 +33,5 @@ fn main() {
 mod prelude {
     pub use crate::page;
 
-    pub use crate::util::{async_handler, sync_handler};
+    pub use crate::util::{async_handler, maybe_class, sync_handler};
 }

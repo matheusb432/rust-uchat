@@ -1,10 +1,12 @@
 [workspace]
+# NOTE cargo commands will operate on all `default-members` listed here
 default-members = [
   "backend/server",
   "backend/crypto",
   "backend/query",
   "frontend",
   "shared/cookie",
+  "shared/domain",
 ]
 members = [
   "backend/server",
@@ -12,5 +14,6 @@ members = [
   "backend/query",
   "frontend",
   "shared/cookie",
+  "shared/domain",
   "tools/project-init",
 ]
