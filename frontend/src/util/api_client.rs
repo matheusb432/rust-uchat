@@ -4,6 +4,7 @@ use serde::Serialize;
 
 use super::RequestError;
 
+// NOTE The api client is an immutable, thread-safe singleton
 pub static API_CLIENT: OnceCell<ApiClient> = OnceCell::new();
 
 #[derive(Clone, Debug, Default)]
@@ -28,6 +29,10 @@ impl ApiClient {
         post_json(self.clone(), endpoint, json, timeout).await
     }
 
+    /// Returns a reference to the global api client.
+    ///
+    /// # Panics
+    /// If the api client is not initialized.
     pub fn global() -> &'static ApiClient {
         API_CLIENT.get().expect("api client is not initialized")
     }
@@ -35,6 +40,8 @@ impl ApiClient {
     pub fn init() {
         let api_client = reqwest::Client::builder().build().unwrap();
         let api_client = ApiClient::new(api_client);
+
+        // NOTE Trying to set an OnceCell more than once returns an Err
         if API_CLIENT.set(api_client).is_err() {
             log::warn!("Tried to init api client more than once (this is a bug)");
         }
@@ -113,18 +120,17 @@ async fn make_request(
 #[macro_export]
 macro_rules! fetch_json {
     (<$target:ty>, $client:ident, $request:expr) => {{
-        use uchat_api::Endpoint;
+        use uchat_endpoint::Endpoint;
         use $crate::util::RequestError;
+        // TODO rename to `timeout`?
         let duration = std::time::Duration::from_millis(6000);
-        let response = $client
-            .post_json($request.self_url(), &$request, duration)
-            .await;
+        let response = $client.post_json($request.url(), &$request, duration).await;
         match response {
             Ok(res) => {
                 if res.status().is_success() {
                     Ok(res.json::<$target>().await.unwrap())
                 } else {
-                    let err_payload = res.json::<uchat_api::RequestFailed>().await.unwrap();
+                    let err_payload = res.json::<uchat_endpoint::RequestFailed>().await.unwrap();
                     Err(RequestError::BadRequest(err_payload))
                 }
             }

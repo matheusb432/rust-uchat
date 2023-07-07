@@ -9,6 +9,7 @@ pub struct CreateUser {
     pub password: Password,
 }
 
+#[derive(Clone, Deserialize, Serialize)]
 pub struct CreateUserOk {
     pub user_id: UserId,
     pub username: Username,

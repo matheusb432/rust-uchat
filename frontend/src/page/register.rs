@@ -1,11 +1,13 @@
 #![allow(non_snake_case)]
 
 use dioxus::prelude::*;
-use uchat_domain;
+use uchat_domain::{self, UserFacingError};
 
 use crate::{
     components::keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
+    fetch_json,
     prelude::*,
+    util::{api_client, ApiClient},
 };
 
 pub struct PageState {
@@ -82,17 +84,43 @@ pub fn PasswordInput<'a>(
 }
 
 pub fn Register(cx: Scope) -> Element {
+    let api_client = ApiClient::global();
     let page_state = PageState::new(cx);
     // NOTE use_state only works with owned values, so use_ref is necessary to use borrowed values in state
     // ? It works by using a RefCell to store the value
     let page_state = use_ref(cx, || page_state);
 
-    // NOTE sync_handler copies a pointer to the page state, making it available to the event handler efficiently
+    let form_onsubmit = async_handler!(&cx, [api_client, page_state], move |_| async move {
+        use uchat_endpoint::user::endpoint::{CreateUser, CreateUserOk};
+        let request_data = {
+            use uchat_domain::{Password, Username};
+            CreateUser {
+                // TODO refactor?
+                username: Username::new(
+                    page_state.with(|state| state.username.current().to_string()),
+                )
+                .unwrap(),
+                password: Password::new(
+                    page_state.with(|state| state.password.current().to_string()),
+                )
+                .unwrap(),
+            }
+        };
+
+        let response = fetch_json!(<CreateUserOk>, api_client,  request_data);
+
+        match response {
+            Ok(res) => (),
+            Err(e) => (),
+        };
+    });
+
+    // NOTE sync_handler! custom macro copies a `page_state` pointer, making it available to the event handler efficiently
     let username_oninput = sync_handler!([page_state], move |ev: FormEvent| {
         // TODO refactor to single with_mut?
         if let Err(e) = uchat_domain::Username::new(&ev.value) {
             // TODO refactor to simply "username"?
-            page_state.with_mut(|state| state.form_errors.set("bad-username", e.to_string()))
+            page_state.with_mut(|state| state.form_errors.set("bad-username", e.formatted_error()))
         } else {
             page_state.with_mut(|state| state.form_errors.remove("bad-username"))
         }
@@ -103,7 +131,7 @@ pub fn Register(cx: Scope) -> Element {
 
     let password_oninput = sync_handler!([page_state], move |ev: FormEvent| {
         if let Err(e) = uchat_domain::Password::new(&ev.value) {
-            page_state.with_mut(|state| state.form_errors.set("bad-password", e.to_string()))
+            page_state.with_mut(|state| state.form_errors.set("bad-password", e.formatted_error()))
         } else {
             page_state.with_mut(|state| state.form_errors.remove("bad-password"))
         }
@@ -116,7 +144,7 @@ pub fn Register(cx: Scope) -> Element {
         maybe_class!("btn-disabled", !page_state.with(|state| state.can_submit()));
 
     cx.render(rsx! {
-        form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: move |_| {},
+        form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: form_onsubmit,
 
             UsernameInput {
                 // NOTE .with() passes an immutable reference of the state

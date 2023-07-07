@@ -14,7 +14,9 @@ use tracing::Level;
 use uchat_endpoint::{user::endpoint::CreateUser, Endpoint};
 
 pub fn new_router(state: AppState) -> Router {
-    let public_routes = Router::new().route("/", get(move || async { "this is the root page" }));
+    let public_routes = Router::new()
+        .route("/", get(move || async { "this is the root page" }))
+        .route(CreateUser::URL, post(with_public_handler::<CreateUser>));
     let authorized_routes = Router::new();
 
     Router::new()
