@@ -1,0 +1,16 @@
+[package]
+name = "uchat_endpoint"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = { version = "0.4.26", features = ["serde"] }
+load-dotenv = "0.1.2"
+serde = { version = "1.0.167", features = ["derive"] }
+thiserror = "1.0.43"
+url = { version = "2.4.0", features = ["serde"] }
+uuid = { version = "1.4.0", features = ["v4", "serde", "js"] }
+
+uchat_domain = { path = "../domain" }

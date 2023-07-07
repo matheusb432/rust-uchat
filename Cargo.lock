@@ -2620,9 +2620,9 @@ checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
 
 [[package]]
 name = "serde"
-version = "1.0.166"
+version = "1.0.167"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d01b7404f9d441d3ad40e6a636a7782c377d2abdbe4fa2440e2edcc2f4f10db8"
+checksum = "7daf513456463b42aa1d94cff7e0c24d682b429f020b9afa4f5ba5c40a22b237"
 dependencies = [
  "serde_derive",
 ]
@@ -2650,9 +2650,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.166"
+version = "1.0.167"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dd83d6dde2b6b2d466e14d9d1acce8816dedee94f735eac6395808b3483c6d6"
+checksum = "b69b106b68bc8054f0e974e70d19984040f8a5cf9215ca82626ea4853f82c4b9"
 dependencies = [
  "proc-macro2 1.0.63",
  "quote 1.0.29",
@@ -2948,18 +2948,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.40"
+version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "978c9a314bd8dc99be594bc3c175faaa9794be04a5a5e153caba6915336cebac"
+checksum = "a35fc5b8971143ca348fa6df4f024d4d55264f3468c71ad1c2f365b0a4d58c42"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.40"
+version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9456a42c5b0d803c8cd86e73dd7cc9edd429499f37a3550d286d5e86720569f"
+checksum = "463fe12d7993d3b327787537ce8dd4dfa058de32fc2b195ef3cde03dc4771e8f"
 dependencies = [
  "proc-macro2 1.0.63",
  "quote 1.0.29",
@@ -3274,6 +3274,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "uchat_endpoint"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "load-dotenv",
+ "serde",
+ "thiserror",
+ "uchat_domain",
+ "url",
+ "uuid",
+]
+
+[[package]]
 name = "uchat_query"
 version = "0.1.0"
 dependencies = [
@@ -3292,6 +3305,7 @@ dependencies = [
  "tokio",
  "tracing",
  "uchat_crypto",
+ "uchat_domain",
  "url",
  "uuid",
 ]
@@ -3320,6 +3334,7 @@ dependencies = [
  "tracing-subscriber",
  "uchat_cookie",
  "uchat_crypto",
+ "uchat_endpoint",
  "uchat_query",
  "url",
  "uuid",
