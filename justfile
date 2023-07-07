@@ -4,6 +4,7 @@ set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 TRUNK_CONFIG_FILE := if os() == "windows" { "Trunk.win.toml" } else { "Trunk.toml" }
 TRUNK_RELEASE_CONFIG_FILE := if os() == "windows" { "Trunk-release.win.toml" } else { "Trunk.toml" }
 
+
 # build in release mode
 build:
     # build frontend
@@ -51,10 +52,12 @@ db-migrate:
     diesel migration redo
     psql -d postgres -c 'DROP DATABASE uchat_test;'
 
+# ! Powershell doesn't have the `|| true` operator
 # reset the database
 db-reset:
     diesel database reset
     psql -d postgres -c 'DROP DATABASE uchat_test;' || true
+    
 
 # create a new database migration
 db-new-migration NAME:

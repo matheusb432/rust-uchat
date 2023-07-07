@@ -1,3 +1,6 @@
+pub mod logging;
+pub mod router;
+
 use axum::extract::FromRef;
 use uchat_query::{AsyncConnection, AsyncConnectionPool, QueryError};
 
