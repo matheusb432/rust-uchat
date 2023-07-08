@@ -51,7 +51,28 @@ pub fn new(
             .values(&new_session)
             .on_conflict((web::user_id, web::fingerprint))
             .do_update()
+            // ? Updates the expiration date if an already logged in user logs in again
             .set(web::expires_at.eq(new_session.expires_at))
             .get_result(conn)
     }
+}
+
+pub fn get(conn: &mut PgConnection, session_id: SessionId) -> Result<Option<Session>, DieselError> {
+    use crate::schema::web;
+    web::table
+        .filter(web::id.eq(session_id))
+        .get_result(conn)
+        .optional()
+}
+
+pub fn find(
+    conn: &mut PgConnection,
+    user_id: UserId,
+    fingerprint: Fingerprint,
+) -> Result<Session, DieselError> {
+    use crate::schema::web;
+    web::table
+        .filter(web::user_id.eq(user_id))
+        .filter(web::fingerprint.eq(fingerprint))
+        .get_result(conn)
 }
