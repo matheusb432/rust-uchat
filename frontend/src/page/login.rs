@@ -83,7 +83,35 @@ pub fn Login(cx: Scope) -> Element {
     let page_state = use_ref(cx, || page_state);
 
     let form_onsubmit = async_handler!(&cx, [api_client, page_state], move |_| async move {
+        // NOTE Using the `Login` here will shadow the `Login` from the upper scope
         use uchat_endpoint::user::endpoint::{Login, LoginOk};
+        let request_data = {
+            use uchat_domain::{Password, Username};
+            Login {
+                username: Username::new(
+                    page_state.with(|state| state.username.current().to_string()),
+                )
+                .unwrap(),
+                password: Password::new(
+                    page_state.with(|state| state.password.current().to_string()),
+                )
+                .unwrap(),
+            }
+        };
+
+        let response = fetch_json!(<LoginOk>, api_client, request_data);
+        match response {
+            Ok(res) => {
+                let LoginOk {
+                    session_expires,
+                    session_id,
+                    session_signature,
+                    ..
+                } = res;
+                crate::util::cookie::set_session(session_signature, session_id, session_expires);
+            }
+            Err(e) => {}
+        }
     });
 
     let username_oninput = sync_handler!([page_state], move |ev: FormEvent| {
