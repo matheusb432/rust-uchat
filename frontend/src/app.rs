@@ -11,8 +11,9 @@ pub fn App(cx: Scope) -> Element {
     // NOTE `cx.render` renders the result of the rsx! macro
     // ? The rsx! macro is a macro that returns an `Element` type
     cx.render(rsx! {
-        Router { 
+        Router {
             Route { to: page::ACCOUNT_REGISTER, page::Register {} }
+            Route { to: page::ACCOUNT_LOGIN, page::Login {} }
         }
     })
 }
