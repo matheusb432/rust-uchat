@@ -67,3 +67,4 @@ pub enum IdErr {
 // ? Generating the id types by calling the macro
 new_id!(UserId);
 new_id!(SessionId);
+new_id!(PostId);
