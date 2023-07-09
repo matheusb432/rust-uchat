@@ -3307,6 +3307,7 @@ dependencies = [
  "tracing",
  "uchat_crypto",
  "uchat_domain",
+ "uchat_endpoint",
  "url",
  "uuid",
 ]
