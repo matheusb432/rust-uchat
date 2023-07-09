@@ -7,7 +7,7 @@ use crate::{
     components::keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
     fetch_json,
     prelude::*,
-    util::{api_client, ApiClient},
+    util::ApiClient,
 };
 
 pub struct PageState {
@@ -81,38 +81,45 @@ pub fn Login(cx: Scope) -> Element {
     let api_client = ApiClient::global();
     let page_state = PageState::new(cx);
     let page_state = use_ref(cx, || page_state);
+    let router = use_router(cx);
 
-    let form_onsubmit = async_handler!(&cx, [api_client, page_state], move |_| async move {
-        // NOTE Using the `Login` here will shadow the `Login` from the upper scope
-        use uchat_endpoint::user::endpoint::{Login, LoginOk};
-        let request_data = {
-            use uchat_domain::{Password, Username};
-            Login {
-                username: Username::new(
-                    page_state.with(|state| state.username.current().to_string()),
-                )
-                .unwrap(),
-                password: Password::new(
-                    page_state.with(|state| state.password.current().to_string()),
-                )
-                .unwrap(),
-            }
-        };
+    let form_onsubmit =
+        async_handler!(&cx, [api_client, page_state, router], move |_| async move {
+            // NOTE Using the `Login` here will shadow the `Login` from the upper scope
+            use uchat_endpoint::user::endpoint::{Login, LoginOk};
+            let request_data = {
+                use uchat_domain::{Password, Username};
+                Login {
+                    username: Username::new(
+                        page_state.with(|state| state.username.current().to_string()),
+                    )
+                    .unwrap(),
+                    password: Password::new(
+                        page_state.with(|state| state.password.current().to_string()),
+                    )
+                    .unwrap(),
+                }
+            };
 
-        let response = fetch_json!(<LoginOk>, api_client, request_data);
-        match response {
-            Ok(res) => {
-                let LoginOk {
-                    session_expires,
-                    session_id,
-                    session_signature,
-                    ..
-                } = res;
-                crate::util::cookie::set_session(session_signature, session_id, session_expires);
+            let response = fetch_json!(<LoginOk>, api_client, request_data);
+            match response {
+                Ok(res) => {
+                    let LoginOk {
+                        session_expires,
+                        session_id,
+                        session_signature,
+                        ..
+                    } = res;
+                    crate::util::cookie::set_session(
+                        session_signature,
+                        session_id,
+                        session_expires,
+                    );
+                    router.navigate_to(page::HOME);
+                }
+                Err(e) => {}
             }
-            Err(e) => {}
-        }
-    });
+        });
 
     let username_oninput = sync_handler!([page_state], move |ev: FormEvent| {
         if let Err(e) = uchat_domain::Username::new(&ev.value) {
@@ -139,7 +146,6 @@ pub fn Login(cx: Scope) -> Element {
 
     cx.render(rsx! {
         form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: form_onsubmit,
-
             UsernameInput {
                 state: page_state.with(|state| state.username.clone()),
                 oninput: username_oninput
@@ -152,12 +158,7 @@ pub fn Login(cx: Scope) -> Element {
                 legend: "Form Errors",
                 notifications: page_state.with(|state| state.form_errors.clone())
             }
-            button {
-                class: "btn {submit_btn_style}",
-                r#type: "submit",
-                disabled: !page_state.with(|state| state.can_submit()),
-                "Login"
-            }
+            button { class: "btn {submit_btn_style}", r#type: "submit", disabled: !page_state.with(|state| state.can_submit()), "Login" }
         }
     })
 }

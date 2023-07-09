@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 :root {
+  --navbar-height: 3.8rem;
+  --content-min-width: 300px;
+  --content-max-width: 576px;
 }
 
 @layer components {
@@ -21,5 +24,13 @@
 
   .fieldset {
     @apply p-3 border-2 border-solid border-slate-300;
+  }
+
+  .navbar-bg-color {
+    @apply bg-slate-600;
+  }
+
+  .navbar-border-color {
+    @apply border-slate-300;
   }
 }

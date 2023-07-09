@@ -42,11 +42,7 @@ pub struct KeyedNotificationsProps<'a> {
 
 pub fn KeyedNotificationBox<'a>(cx: Scope<'a, KeyedNotificationsProps<'a>>) -> Element {
     let notifications = cx.props.notifications.messages().map(|msg| {
-        rsx! {
-            li {
-                "{msg}"
-            }
-        }
+        rsx! { li { "{msg}" } }
     });
     let legend = cx.props.legend.unwrap_or("Errors");
 
@@ -56,14 +52,9 @@ pub fn KeyedNotificationBox<'a>(cx: Scope<'a, KeyedNotificationsProps<'a>>) -> E
     }
 
     cx.render(rsx! {
-        fieldset {
-            class: "fieldset border-red-300 rounded",
-            legend {
-                class: "bg-red-300 px-4",
-                "{legend}"
-            }
-            ul {
-                class: "list-disc ml-4",
+        fieldset { class: "fieldset border-red-300 rounded",
+            legend { class: "bg-red-300 px-4", "{legend}" }
+            ul { class: "list-disc ml-4",
                 // NOTE passing an iterator as children of `ul` will consume it when needed
                 notifications
             }

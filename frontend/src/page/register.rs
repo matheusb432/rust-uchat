@@ -89,31 +89,40 @@ pub fn Register(cx: Scope) -> Element {
     // NOTE use_state only works with owned values, so use_ref is necessary to use borrowed values in state
     // ? It works by using a RefCell to store the value
     let page_state = use_ref(cx, || page_state);
+    let router = use_router(cx);
 
-    let form_onsubmit = async_handler!(&cx, [api_client, page_state], move |_| async move {
-        use uchat_endpoint::user::endpoint::{CreateUser, CreateUserOk};
-        let request_data = {
-            use uchat_domain::{Password, Username};
-            CreateUser {
-                // TODO refactor?
-                username: Username::new(
-                    page_state.with(|state| state.username.current().to_string()),
-                )
-                .unwrap(),
-                password: Password::new(
-                    page_state.with(|state| state.password.current().to_string()),
-                )
-                .unwrap(),
-            }
-        };
+    let form_onsubmit =
+        async_handler!(&cx, [api_client, page_state, router], move |_| async move {
+            use uchat_endpoint::user::endpoint::{CreateUser, CreateUserOk};
+            let request_data = {
+                use uchat_domain::{Password, Username};
+                CreateUser {
+                    // TODO refactor?
+                    username: Username::new(
+                        page_state.with(|state| state.username.current().to_string()),
+                    )
+                    .unwrap(),
+                    password: Password::new(
+                        page_state.with(|state| state.password.current().to_string()),
+                    )
+                    .unwrap(),
+                }
+            };
 
-        let response = fetch_json!(<CreateUserOk>, api_client,  request_data);
+            let response = fetch_json!(<CreateUserOk>, api_client,  request_data);
 
-        match response {
-            Ok(res) => (),
-            Err(e) => (),
-        };
-    });
+            match response {
+                Ok(res) => {
+                    crate::util::cookie::set_session(
+                        res.session_signature,
+                        res.session_id,
+                        res.session_expires,
+                    );
+                    router.navigate_to(page::HOME);
+                }
+                Err(e) => (),
+            };
+        });
 
     // NOTE sync_handler! custom macro copies a `page_state` pointer, making it available to the event handler efficiently
     let username_oninput = sync_handler!([page_state], move |ev: FormEvent| {
@@ -143,13 +152,13 @@ pub fn Register(cx: Scope) -> Element {
     let submit_btn_style =
         maybe_class!("btn-disabled", !page_state.with(|state| state.can_submit()));
 
+    // NOTE .with() passes an immutable reference of the state
+    // * state: page_state.with(|state| state.username.clone()),
+    // ? With the oninput event handler, this effectively creates 2-way databinding on the input
     cx.render(rsx! {
         form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: form_onsubmit,
-
             UsernameInput {
-                // NOTE .with() passes an immutable reference of the state
                 state: page_state.with(|state| state.username.clone()),
-                // ? With the oninput event handler, this effectively creates 2-way databinding on the input
                 oninput: username_oninput
             }
             PasswordInput {
