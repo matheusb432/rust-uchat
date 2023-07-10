@@ -5,6 +5,7 @@ use dioxus::prelude::*;
 
 #[inline_props]
 pub fn NewPostPopup(cx: Scope, hide: UseState<bool>) -> Element {
+    let router = use_router(cx);
     let hide_class = maybe_class!("hidden", *hide.get());
 
     // TODO refactor BUTTON_CLASS div to component
@@ -20,7 +21,12 @@ pub fn NewPostPopup(cx: Scope, hide: UseState<bool>) -> Element {
                 img { class: "invert", src: "/static/icons/icon-image.svg" }
                 "Image"
             }
-            div { class: BUTTON_CLASS, onclick: move |_| todo!(),
+            div {
+                class: BUTTON_CLASS,
+                onclick: move |_| {
+                    router.navigate_to(page::POST_NEW_CHAT);
+                    hide.set(true);
+                },
                 img { class: "invert", src: "/static/icons/icon-messages.svg" }
                 "Chat"
             }

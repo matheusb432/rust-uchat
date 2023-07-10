@@ -120,7 +120,7 @@ pub fn Register(cx: Scope) -> Element {
                     );
                     router.navigate_to(page::HOME);
                 }
-                Err(e) => (),
+                Err(_err) => (),
             };
         });
 

@@ -141,8 +141,7 @@ pub fn Login(cx: Scope) -> Element {
         page_state.with_mut(|state| state.password.set(ev.value.clone()));
     });
 
-    let submit_btn_style =
-        maybe_class!("btn-disabled", !page_state.with(|state| state.can_submit()));
+    let submit_btn_style = maybe_class!("btn-disabled", !page_state.with(|state| state.can_submit()));
 
     cx.render(rsx! {
         form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: form_onsubmit,
