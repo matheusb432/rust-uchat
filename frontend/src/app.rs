@@ -5,11 +5,13 @@ use dioxus_router::{Route, Router};
 use fermi::{use_init_atom_root, AtomRef};
 
 use crate::{
-    components::{toaster::ToastRoot, Navbar, Toaster},
+    components::{post::PostManager, toaster::ToastRoot, toaster::Toaster, Navbar},
     prelude::*,
 };
 
+// NOTE `static` keyword is used to give a 'static lifetime to the variable
 pub static TOASTER: AtomRef<Toaster> = |_| Toaster::default();
+pub static POST_MANAGER: AtomRef<PostManager> = |_| PostManager::default();
 
 pub fn App(cx: Scope) -> Element {
     use_init_atom_root(cx);

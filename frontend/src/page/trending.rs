@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::prelude::*;
+use crate::{components::post::use_post_manager, prelude::*};
 
 use api_client::ApiClient;
 use dioxus::{html::h1, prelude::*};
@@ -12,17 +12,19 @@ use crate::{components::toaster, toasty, util::api_client};
 
 pub fn Trending(cx: Scope) -> Element {
     let api_client = ApiClient::global();
+
     let router = use_router(cx);
+    let post_manager = use_post_manager(cx);
     let toaster = use_toaster(cx);
 
     let _fetch_trending_posts = {
-        to_owned![api_client, toaster];
+        to_owned![api_client, toaster, post_manager];
         use_future(cx, (), |_| async move {
             use uchat_endpoint::post::endpoint::{TrendingPosts, TrendingPostsOk};
             toasty!(toaster => info: "Retrieving trending posts...", 3);
             let response = fetch_json!(<TrendingPostsOk>, api_client, TrendingPosts);
             match response {
-                Ok(res) => (),
+                Ok(res) => post_manager.write().populate(res.posts.into_iter()),
                 Err(e) => toasty!(toaster => error: format!("Failed to retrieve posts: {e}")),
             }
         })
