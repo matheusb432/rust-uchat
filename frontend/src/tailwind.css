@@ -33,4 +33,8 @@
   .navbar-border-color {
     @apply border-slate-300;
   }
+
+  .err-text-color {
+    @apply text-red-700;
+  }
 }
