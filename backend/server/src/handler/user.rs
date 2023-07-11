@@ -1,16 +1,32 @@
-use crate::prelude::*;
+use crate::{extractor::UserSession, prelude::*};
 use axum::{async_trait, Json};
 use chrono::{Duration, Utc};
 use tracing::info;
-use uchat_domain::ids::UserId;
-use uchat_endpoint::user::endpoint::{CreateUser, CreateUserOk, Login, LoginOk};
-use uchat_query::session::Session;
+use uchat_domain::{ids::UserId, user::DisplayName};
+use uchat_endpoint::user::{
+    endpoint::{CreateUser, CreateUserOk, Login, LoginOk},
+    types::PublicUserProfile,
+};
+use uchat_query::{session::Session, user::User, AsyncConnection};
 
 use crate::{error::ApiResult, extractor::DbConnection, AppState};
 
 use super::PublicApiRequest;
 
 pub struct SessionSignature(String);
+
+pub fn to_public(user: User) -> ApiResult<PublicUserProfile> {
+    Ok(PublicUserProfile {
+        id: user.id,
+        display_name: user
+            .display_name
+            .and_then(|name| DisplayName::new(name).ok()),
+        handle: user.handle,
+        profile_image: None,
+        created_at: user.created_at,
+        am_following: false,
+    })
+}
 
 fn new_session(
     state: &AppState,

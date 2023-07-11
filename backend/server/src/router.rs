@@ -15,7 +15,7 @@ use tower_http::{
 };
 use tracing::Level;
 use uchat_endpoint::{
-    post::endpoint::NewPost,
+    post::endpoint::{NewPost, TrendingPosts},
     user::endpoint::{CreateUser, Login},
     Endpoint,
 };
@@ -25,7 +25,9 @@ pub fn new_router(state: AppState) -> Router {
         .route("/", get(move || async { "this is the root page" }))
         .route(CreateUser::URL, post(with_public_handler::<CreateUser>))
         .route(Login::URL, post(with_public_handler::<Login>));
-    let authorized_routes = Router::new().route(NewPost::URL, post(with_handler::<NewPost>));
+    let authorized_routes = Router::new()
+        .route(NewPost::URL, post(with_handler::<NewPost>))
+        .route(TrendingPosts::URL, post(with_handler::<TrendingPosts>));
 
     Router::new()
         .merge(public_routes)

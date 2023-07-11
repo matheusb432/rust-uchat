@@ -32,3 +32,21 @@ impl UserFacingError for PasswordError {
         }
     }
 }
+
+#[nutype(validate(present, max_len = 30))]
+#[derive(AsRef, Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub struct DisplayName(String);
+
+impl DisplayName {
+    pub const MAX_CHARS: usize = 30;
+}
+
+// NOTE The nutype validate macro automatically generates the DisplayNameError enum
+impl UserFacingError for DisplayNameError {
+    fn formatted_error(&self) -> &'static str {
+        match self {
+            Self::Missing => "Display name cannot be empty",
+            Self::TooLong => "Display name must be at most 30 characters",
+        }
+    }
+}

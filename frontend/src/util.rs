@@ -134,12 +134,12 @@ macro_rules! toasty {
     ($toaster: expr => $type: tt : $message:expr) => {
         $toaster
             .write()
-            .$type($message, ::chrono::Duration::seconds(5));
+            .$type($message, ::chrono::Duration::seconds(5))
     };
     ($toaster: expr => $type: tt : $message:expr, $seconds:expr) => {
         $toaster
             .write()
-            .$type($message, ::chrono::Duration::seconds($seconds));
+            .$type($message, ::chrono::Duration::seconds($seconds))
     };
 }
 

@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use rand_core::{CryptoRng, RngCore};
 use rsa::pss::{BlindedSigningKey, Signature, VerifyingKey};
 use rsa::sha2::Sha256;

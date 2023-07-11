@@ -35,6 +35,7 @@ fn main() {
 mod prelude {
     pub use crate::page;
 
+    pub use crate::util::api_client::fetch_json;
     pub use crate::util::{async_handler, maybe_class, sync_handler, ApiClient};
 
     pub use crate::components::toaster::use_toaster;

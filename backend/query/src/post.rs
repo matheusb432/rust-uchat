@@ -15,13 +15,13 @@ pub struct Content(pub serde_json::Value);
 #[derive(Debug, Queryable, Selectable, Insertable)]
 #[diesel(table_name = schema::posts)]
 pub struct Post {
-    id: PostId,
-    user_id: UserId,
-    content: Content,
-    time_posted: DateTime<Utc>,
-    direct_message_to: Option<UserId>,
-    reply_to: Option<PostId>,
-    created_at: DateTime<Utc>,
+    pub id: PostId,
+    pub user_id: UserId,
+    pub content: Content,
+    pub time_posted: DateTime<Utc>,
+    pub direct_message_to: Option<UserId>,
+    pub reply_to: Option<PostId>,
+    pub created_at: DateTime<Utc>,
 }
 
 impl Post {
@@ -50,4 +50,20 @@ pub fn new(conn: &mut PgConnection, post: Post) -> Result<PostId, DieselError> {
             .execute(conn)?;
         Ok(post.id)
     })
+}
+
+pub fn get(conn: &mut PgConnection, post_id: PostId) -> Result<Post, DieselError> {
+    use crate::schema::posts::dsl::*;
+
+    posts.filter(id.eq(post_id.as_uuid())).get_result(conn)
+}
+
+pub fn get_trending(conn: &mut PgConnection) -> Result<Vec<Post>, DieselError> {
+    use crate::schema::posts;
+    posts::table
+        .filter(posts::time_posted.lt(Utc::now()))
+        .filter(posts::direct_message_to.is_null())
+        .order(posts::time_posted.desc())
+        .limit(30)
+        .get_results(conn)
 }
