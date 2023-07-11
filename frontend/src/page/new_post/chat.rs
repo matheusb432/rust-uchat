@@ -1,8 +1,9 @@
 #![allow(non_snake_case)]
 
-use crate::prelude::*;
+use crate::{fetch_json, prelude::*, util::api_client};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
+use uchat_endpoint::post::types::NewPostOptions;
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct PageState {
@@ -88,11 +89,43 @@ pub fn HeadlineInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
 pub fn NewChat(cx: Scope) -> Element {
     let page_state = use_ref(cx, PageState::default);
     let is_invalid = !page_state.read().can_submit();
+    let router = use_router(&cx);
+    let api_client = ApiClient::global();
+
+    let form_submit = async_handler!(&cx, [api_client, page_state, router], move |_| async move {
+        use uchat_domain::post::{Headline, Message};
+        use uchat_endpoint::post::endpoint::{NewPost, NewPostOk};
+        use uchat_endpoint::post::types::Chat;
+
+        let request = NewPost {
+            content: Chat {
+                headline: {
+                    let headline = &page_state.read().headline;
+                    // TODO refactor (ok() should do it? also two reads on the page_state?)
+                    if headline.is_empty() {
+                        None
+                    } else {
+                        Some(Headline::new(headline).unwrap())
+                    }
+                },
+                message: Message::new(&page_state.read().message).unwrap(),
+            }
+            .into(),
+            options: NewPostOptions::default(),
+        };
+        let response = fetch_json!(<NewPostOk>, api_client, request);
+        match response {
+            Ok(_) => {
+                router.replace_route(page::HOME, None, None);
+            }
+            Err(e) => (),
+        }
+    });
 
     let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
 
     cx.render(rsx! {
-        form { class: "flex flex-col gap-4", onsubmit: move |_| (), prevent_default: "onsubmit",
+        form { class: "flex flex-col gap-4", onsubmit: form_submit, prevent_default: "onsubmit",
             MessageInput { page_state: page_state.clone() }
             HeadlineInput { page_state: page_state.clone() }
             button { class: "btn {submit_btn_style}", r#type: "submit", disabled: is_invalid, "Post" }

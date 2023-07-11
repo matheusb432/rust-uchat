@@ -128,6 +128,7 @@ macro_rules! fetch_json {
         match response {
             Ok(res) => {
                 if res.status().is_success() {
+                    // TODO refactor, should not unwrap or else it can panic easily
                     Ok(res.json::<$target>().await.unwrap())
                 } else {
                     let err_payload = res.json::<uchat_endpoint::RequestFailed>().await.unwrap();
