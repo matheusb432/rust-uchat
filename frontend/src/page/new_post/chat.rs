@@ -10,6 +10,21 @@ pub struct PageState {
     pub headline: String,
 }
 
+impl PageState {
+    pub fn can_submit(&self) -> bool {
+        use uchat_domain::post::{Headline, Message};
+
+        if Message::new(&self.message).is_err() {
+            return false;
+        }
+
+        if !self.headline.is_empty() && Headline::new(&self.headline).is_err() {
+            return false;
+        }
+        true
+    }
+}
+
 #[inline_props]
 pub fn MessageInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
     use uchat_domain::post::Message;
@@ -21,17 +36,12 @@ pub fn MessageInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
     );
     cx.render(rsx! {
         div {
-            label {
-                r#for: "message",
-                div {
-                    class: "flex flex-row justify-between",
-                    span {"Message"},
-                    span {
-                        class: "text-right {wrong_len}",
-                        "{page_state.read().message.len()}/{max_chars}"
-                    }
+            label { r#for: "message",
+                div { class: "flex flex-row justify-between",
+                    span { "Message" }
+                    span { class: "text-right {wrong_len}", "{page_state.read().message.len()}/{max_chars}" }
                 }
-            },
+            }
             textarea {
                 class: "input-field",
                 id: "message",
@@ -57,17 +67,12 @@ pub fn HeadlineInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
 
     cx.render(rsx! {
         div {
-            label {
-                r#for: "headline",
-                div {
-                    class: "flex flex-row justify-between",
-                span {"Headline"},
-                    span {
-                        class: "text-right {wrong_len}",
-                        "{page_state.read().headline.len()}/{max_chars}"
-                    }
+            label { r#for: "headline",
+                div { class: "flex flex-row justify-between",
+                    span { "Headline" }
+                    span { class: "text-right {wrong_len}", "{page_state.read().headline.len()}/{max_chars}" }
                 }
-            },
+            }
             input {
                 class: "input-field",
                 id: "headline",
@@ -82,14 +87,15 @@ pub fn HeadlineInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
 
 pub fn NewChat(cx: Scope) -> Element {
     let page_state = use_ref(cx, PageState::default);
+    let is_invalid = !page_state.read().can_submit();
+
+    let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
 
     cx.render(rsx! {
         form { class: "flex flex-col gap-4", onsubmit: move |_| (), prevent_default: "onsubmit",
-        MessageInput {page_state: page_state.clone()},
-            button { class: "btn", r#type: "submit", disabled: true, "Post" }
-        }
-        HeadlineInput {
-            page_state: page_state.clone()
+            MessageInput { page_state: page_state.clone() }
+            HeadlineInput { page_state: page_state.clone() }
+            button { class: "btn {submit_btn_style}", r#type: "submit", disabled: is_invalid, "Post" }
         }
     })
 }

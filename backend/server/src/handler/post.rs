@@ -1,7 +1,6 @@
+use crate::prelude::*;
 use axum::{async_trait, Json};
 use chrono::{Duration, Utc};
-// TODO refactor, status code to this crate's prelude?
-use hyper::StatusCode;
 use tracing::info;
 use uchat_domain::ids::UserId;
 use uchat_endpoint::post::endpoint::{NewPost, NewPostOk};

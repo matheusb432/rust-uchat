@@ -30,6 +30,8 @@ enum Command {
     GenKey,
 }
 
+const CLI_TARGET: &str = "uchat_server";
+
 async fn run() -> Result<()> {
     color_eyre::install()?;
 
@@ -40,35 +42,38 @@ async fn run() -> Result<()> {
     uchat_server::logging::setup(args.verbosity);
 
     if let Ok(path) = use_dotenv {
-        debug!(target: "uchat_server", dot_env_found = true, path = %path.to_string_lossy());
+        debug!(target: CLI_TARGET, dot_env_found = true, path = %path.to_string_lossy());
     } else {
-        debug!(target: "uchat_server", dot_env_found = false);
+        debug!(target: CLI_TARGET, dot_env_found = false);
     }
 
     if let Some(command) = args.command {
         match command {
             Command::GenKey => {
                 let mut rng = uchat_crypto::new_rng();
-                info!(target: "uchat_server", "generating private key...");
+                info!(target: CLI_TARGET, "generating private key...");
                 let (key, _) = uchat_server::cli::gen_keys(&mut rng)?;
                 let path = "private_key.base64";
 
                 std::fs::write(path, key.as_str())?;
 
-                info!(target: "uchat_server", path=path, "private key saved to disk");
-                info!(target: "uchat_server", "set API_PRIVATE_KEY environment variable with the content of the key in order to use it");
+                info!(target: CLI_TARGET, path = path, "private key saved to disk");
+                info!(target: CLI_TARGET, "set API_PRIVATE_KEY environment variable with the content of the key in order to use it");
 
                 return Ok(());
             }
         }
     }
 
-    // TODO refactor logs to `uchat_server` to a macro
-    debug!(target: "uchat_server", "loading signing keys");
+    debug!(target: CLI_TARGET, "loading signing keys");
 
     let signing_keys = uchat_server::cli::load_keys()?;
 
-    info!(target: "uchat_server", database_url = args.database_url, "connecting to database");
+    info!(
+        target: CLI_TARGET,
+        database_url = args.database_url,
+        "connecting to database"
+    );
     let db_pool = uchat_query::AsyncConnectionPool::new(&args.database_url)
         .await
         .with_suggestion(|| "check db URL")
@@ -81,7 +86,7 @@ async fn run() -> Result<()> {
         rng: uchat_crypto::new_rng(),
     };
 
-    info!(target: "uchat_server", bind_addr = %args.bind);
+    info!(target: CLI_TARGET, bind_addr = %args.bind);
 
     let router = uchat_server::router::new_router(state);
 
@@ -92,10 +97,10 @@ async fn run() -> Result<()> {
 
     let server = server.serve(router.into_make_service());
 
-    info!(target: "uchat_server", "listening");
+    info!(target: CLI_TARGET, "listening");
 
     if let Err(e) = server.await {
-        error!(target: "uchat_server", server_error = %e);
+        error!(target: CLI_TARGET, server_error = %e);
     }
 
     Ok(())

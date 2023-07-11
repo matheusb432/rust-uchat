@@ -1,8 +1,8 @@
+use crate::prelude::*;
 use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use hyper::StatusCode;
 
 pub type ApiResult<T> = std::result::Result<T, ApiErr>;
 

@@ -14,6 +14,15 @@ use crate::AppState;
 /// This extractor provides the db connection to the endpoints
 pub struct DbConnection(pub OwnedAsyncConnection);
 
+macro_rules! extract_state {
+    ($parts:ident) => {
+        $parts
+            .extract::<Extension<AppState>>()
+            .await
+            .expect("could not extract state, add it as a layer to the router config")
+    };
+}
+
 #[async_trait]
 impl<S> FromRequestParts<S> for DbConnection
 where
@@ -22,11 +31,7 @@ where
     type Rejection = (StatusCode, &'static str);
 
     async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
-        // TODO refactor to macro
-        let state = parts
-            .extract::<Extension<AppState>>()
-            .await
-            .expect("could not extract state, add it as a layer to the router config");
+        let state = extract_state!(parts);
 
         let connection = state.db_pool.get_owned().await.map_err(|_| {
             (
@@ -53,10 +58,7 @@ where
 
     async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
         let DbConnection(mut conn) = parts.extract::<DbConnection>().await.unwrap();
-        let state = parts
-            .extract::<Extension<AppState>>()
-            .await
-            .expect("could not extract state, add it as a layer to the router config");
+        let state = extract_state!(parts);
 
         let unauthorized = || {
             (

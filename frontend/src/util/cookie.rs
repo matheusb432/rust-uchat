@@ -7,6 +7,14 @@ use uchat_domain::ids::SessionId;
 
 use super::document;
 
+macro_rules! set_cookie {
+    ($cookie:expr) => {
+        document()
+            .set_cookie($cookie)
+            .expect("could not find cookie")
+    };
+}
+
 pub fn get_session() -> Option<SessionId> {
     let cookies = document().cookie().unwrap();
     uchat_cookie::get_from_str(&cookies, "session_id").and_then(|id| SessionId::from_str(id).ok())
@@ -17,19 +25,18 @@ pub fn remove_session() {
         format_kv(uchat_cookie::SESSION_ID, ""),
         Utc::now() - Duration::days(1),
     );
-    // TODO refactor to set_cookie macro?
-    document().set_cookie(&cookie).unwrap();
+    set_cookie!(&cookie);
 }
 
 pub fn set_session(signature: String, id: SessionId, expires: DateTime<Utc>) {
     let cookie = format_cookie(format_kv(uchat_cookie::SESSION_ID, id.to_string()), expires);
-    document().set_cookie(&cookie).unwrap();
+    set_cookie!(&cookie);
 
     let cookie = format_cookie(
         format_kv(uchat_cookie::SESSION_SIGNATURE, signature),
         expires,
     );
-    document().set_cookie(&cookie).unwrap();
+    set_cookie!(&cookie);
 }
 
 #[cfg(not(debug_assertions))]

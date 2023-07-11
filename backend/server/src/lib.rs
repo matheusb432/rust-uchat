@@ -20,6 +20,10 @@ impl AppState {
     }
 }
 
+mod prelude {
+    pub use hyper::StatusCode;
+}
+
 pub mod cli {
     use color_eyre::{eyre::Context, Help};
     use rand_core::{CryptoRng, RngCore};

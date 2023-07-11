@@ -123,8 +123,8 @@ macro_rules! fetch_json {
         use uchat_endpoint::Endpoint;
         use $crate::util::RequestError;
         // TODO rename to `timeout`?
-        let duration = std::time::Duration::from_millis(6000);
-        let response = $client.post_json($request.url(), &$request, duration).await;
+        let timeout = std::time::Duration::from_millis(6000);
+        let response = $client.post_json($request.url(), &$request, timeout).await;
         match response {
             Ok(res) => {
                 if res.status().is_success() {

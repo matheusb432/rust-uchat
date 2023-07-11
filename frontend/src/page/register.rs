@@ -27,7 +27,6 @@ impl PageState {
     }
 
     pub fn can_submit(&self) -> bool {
-        // TODO is `current()` necessary?
         let is_form_empty =
             self.username.current().is_empty() || self.password.current().is_empty();
         let has_errors = self.form_errors.has_messages();

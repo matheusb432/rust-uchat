@@ -92,6 +92,33 @@ macro_rules! sync_handler {
 }
 pub use sync_handler;
 
+#[macro_export]
+/// Returns None or an expression if condition is true
+///
+/// # Example
+/// ```
+/// let x = 1;
+/// let y = ret_if!(x == 1; 2);
+/// assert_eq!(y, 2);
+///
+/// let none = ret_if!(2 == 2);
+/// assert!(none.is_none());
+/// ```
+macro_rules! ret_if {
+    ($cond:expr) => {
+        if $cond {
+            return None;
+        }
+    };
+    ($cond:expr; $val:expr) => {
+        if $cond {
+            return $val;
+        }
+    };
+}
+
+pub use ret_if;
+
 pub fn window() -> Window {
     web_sys::window().expect("missing Window object")
 }

@@ -5,9 +5,10 @@ use std::collections::{hash_map::Values, HashMap};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use crate::ret_if;
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct KeyedNotifications {
-    // TODO refactor to use a pointer to optmize it
     pub inner: HashMap<String, String>,
 }
 
@@ -46,10 +47,7 @@ pub fn KeyedNotificationBox<'a>(cx: Scope<'a, KeyedNotificationsProps<'a>>) -> E
     });
     let legend = cx.props.legend.unwrap_or("Errors");
 
-    // TODO to macro?
-    if !cx.props.notifications.has_messages() {
-        return None;
-    }
+    ret_if!(!cx.props.notifications.has_messages());
 
     cx.render(rsx! {
         fieldset { class: "fieldset border-red-300 rounded",
