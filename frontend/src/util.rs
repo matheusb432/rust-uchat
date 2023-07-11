@@ -119,6 +119,32 @@ macro_rules! ret_if {
 
 pub use ret_if;
 
+/// Creates a toast message
+///
+/// # Example
+/// ```
+/// let toaster = use_toaster(cx);
+///
+/// // Success toast for 5 seconds
+/// toasty!(toaster => success: "new post created!");
+/// // Info toast for 3 seconds
+/// toasty!(toaster => info: "hello world!", 3);
+#[macro_export]
+macro_rules! toasty {
+    ($toaster: expr => $type: tt : $message:expr) => {
+        $toaster
+            .write()
+            .$type($message, ::chrono::Duration::seconds(5));
+    };
+    ($toaster: expr => $type: tt : $message:expr, $seconds:expr) => {
+        $toaster
+            .write()
+            .$type($message, ::chrono::Duration::seconds($seconds));
+    };
+}
+
+pub use toasty;
+
 pub fn window() -> Window {
     web_sys::window().expect("missing Window object")
 }

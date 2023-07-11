@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
-use crate::{fetch_json, prelude::*, util::api_client};
+use crate::{fetch_json, prelude::*, toasty, util::api_client};
+use chrono::Duration;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use uchat_endpoint::post::types::NewPostOptions;
@@ -89,38 +90,47 @@ pub fn HeadlineInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
 pub fn NewChat(cx: Scope) -> Element {
     let page_state = use_ref(cx, PageState::default);
     let is_invalid = !page_state.read().can_submit();
+    let toaster = use_toaster(cx);
     let router = use_router(&cx);
     let api_client = ApiClient::global();
 
-    let form_submit = async_handler!(&cx, [api_client, page_state, router], move |_| async move {
-        use uchat_domain::post::{Headline, Message};
-        use uchat_endpoint::post::endpoint::{NewPost, NewPostOk};
-        use uchat_endpoint::post::types::Chat;
+    let form_submit = async_handler!(
+        &cx,
+        [toaster, api_client, page_state, router],
+        move |_| async move {
+            use uchat_domain::post::{Headline, Message};
+            use uchat_endpoint::post::endpoint::{NewPost, NewPostOk};
+            use uchat_endpoint::post::types::Chat;
 
-        let request = NewPost {
-            content: Chat {
-                headline: {
-                    let headline = &page_state.read().headline;
-                    // TODO refactor (ok() should do it? also two reads on the page_state?)
-                    if headline.is_empty() {
-                        None
-                    } else {
-                        Some(Headline::new(headline).unwrap())
-                    }
-                },
-                message: Message::new(&page_state.read().message).unwrap(),
+            let request = NewPost {
+                content: Chat {
+                    headline: {
+                        let headline = &page_state.read().headline;
+                        // TODO refactor (ok() should do it? also two reads on the page_state?)
+                        if headline.is_empty() {
+                            None
+                        } else {
+                            Some(Headline::new(headline).unwrap())
+                        }
+                    },
+                    message: Message::new(&page_state.read().message).unwrap(),
+                }
+                .into(),
+                options: NewPostOptions::default(),
+            };
+
+            let response = fetch_json!(<NewPostOk>, api_client, request);
+            match response {
+                Ok(_) => {
+                    router.replace_route(page::HOME, None, None);
+                    toasty!(toaster => success: "new post created!", 3);
+                }
+                Err(e) => {
+                    toasty!(toaster => error: format!("Post failed: {e}"));
+                }
             }
-            .into(),
-            options: NewPostOptions::default(),
-        };
-        let response = fetch_json!(<NewPostOk>, api_client, request);
-        match response {
-            Ok(_) => {
-                router.replace_route(page::HOME, None, None);
-            }
-            Err(e) => (),
         }
-    });
+    );
 
     let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
 
