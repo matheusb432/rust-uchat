@@ -94,7 +94,7 @@ pub fn NewChat(cx: Scope) -> Element {
     let router = use_router(&cx);
     let api_client = ApiClient::global();
 
-    let form_submit = async_handler!(
+    let form_onsubmit = async_handler!(
         &cx,
         [toaster, api_client, page_state, router],
         move |_| async move {
@@ -135,7 +135,7 @@ pub fn NewChat(cx: Scope) -> Element {
     let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
 
     cx.render(rsx! {
-        form { class: "flex flex-col gap-4", onsubmit: form_submit, prevent_default: "onsubmit",
+        form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
             MessageInput { page_state: page_state.clone() }
             HeadlineInput { page_state: page_state.clone() }
             button { class: "btn {submit_btn_style}", r#type: "submit", disabled: is_invalid, "Post" }

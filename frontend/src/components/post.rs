@@ -2,6 +2,7 @@
 
 pub mod action_bar;
 pub mod content;
+pub mod quick_respond;
 
 use crate::{
     components::post::{action_bar::ActionBar, content::Content},
