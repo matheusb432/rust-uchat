@@ -28,7 +28,8 @@ pub fn Content<'a>(cx: Scope<'a>, post: &'a PublicPost) -> Element {
     cx.render(rsx! {
         div {
             match &post.content {
-                EndpointContent::Chat(content) => rsx! {Chat { post_id: post.id, content: content }}
+                EndpointContent::Chat(content) => rsx! {Chat { post_id: post.id, content: content }},
+                _ => todo!(),    
             }
         }
     })

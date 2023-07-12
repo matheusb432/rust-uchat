@@ -1,5 +1,5 @@
 use crate::{
-    handler::{with_handler, with_public_handler},
+    handler::{self, with_handler, with_public_handler},
     AppState,
 };
 use axum::{
@@ -14,6 +14,7 @@ use tower_http::{
     LatencyUnit,
 };
 use tracing::Level;
+use tracing_subscriber::fmt::format;
 use uchat_endpoint::{
     post::endpoint::{Bookmark, Boost, NewPost, React, TrendingPosts},
     user::endpoint::{CreateUser, Login},
@@ -21,10 +22,19 @@ use uchat_endpoint::{
 };
 
 pub fn new_router(state: AppState) -> Router {
+    let img_route = {
+        use uchat_endpoint::app_url::user_content;
+        format!("{}{}", user_content::ROOT, user_content::IMAGES)
+    };
+
     let public_routes = Router::new()
         .route("/", get(move || async { "this is the root page" }))
+        // NOTE Dynamic route for images
+        .route(&format!("/{img_route}:id"), get(handler::load_image))
+        .route(CreateUser::URL, post(with_public_handler::<CreateUser>))
         .route(CreateUser::URL, post(with_public_handler::<CreateUser>))
         .route(Login::URL, post(with_public_handler::<Login>));
+
     let authorized_routes = Router::new()
         .route(NewPost::URL, post(with_handler::<NewPost>))
         .route(TrendingPosts::URL, post(with_handler::<TrendingPosts>))
