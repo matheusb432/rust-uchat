@@ -1,6 +1,9 @@
 #![allow(non_snake_case)]
 
-use crate::prelude::*;
+pub mod action_bar;
+pub mod content;
+
+use crate::{components::post::content::Content, prelude::*};
 use dioxus::prelude::*;
 use fermi::{use_atom_ref, UseAtomRef};
 use indexmap::IndexMap;
@@ -53,6 +56,40 @@ impl PostManager {
     }
 }
 
+#[inline_props]
+pub fn Header<'a>(cx: Scope<'a>, post: &'a PublicPost) -> Element {
+    let (post_date, post_time) = {
+        let date = post.time_posted.format("%Y-%m-%d");
+        let time = post.time_posted.format("%H:%M:%S");
+        (date, time)
+    };
+
+    let display_name = match &post.by_user.display_name {
+        Some(name) => name.as_ref(),
+        None => "",
+    };
+
+    let handle = &post.by_user.handle;
+
+    cx.render(rsx! {
+        div {
+            class: "flex justify-between",
+            onclick: move |_| (),
+            div { "{display_name} "}
+            div {
+                class: "font-light",
+                "{handle}"
+            }
+        }
+        div {
+            class: "text-right",
+            div { "{post_date}" }
+            div { "{post_time}" }
+        }
+    })
+}
+
+#[inline_props]
 pub fn PublicPostEntry(cx: Scope, post_id: PostId) -> Element {
     let post_manager = use_post_manager(cx);
     let router = use_router(cx);
@@ -64,13 +101,17 @@ pub fn PublicPostEntry(cx: Scope, post_id: PostId) -> Element {
 
     cx.render(rsx! {
         div {
+            key: "{this_post.id.to_string()}",
             class: "grid grid-cols-[50px_1fr] gap-2 mb-4",
             div { /*profile image */}
             div {
                 class: "flex flex-col gap-3",
                 // header
+                Header { post: this_post },
                 // reply to
-                // content
+                Content {
+                    post: this_post,
+                }
                 // action bar
                 hr {}
             }

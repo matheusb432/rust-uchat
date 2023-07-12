@@ -37,4 +37,8 @@
   .err-text-color {
     @apply text-red-700;
   }
+
+  .actionbar-icon {
+    @apply w-8 h-8;
+  }
 }
