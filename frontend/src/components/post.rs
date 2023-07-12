@@ -3,7 +3,10 @@
 pub mod action_bar;
 pub mod content;
 
-use crate::{components::post::content::Content, prelude::*};
+use crate::{
+    components::post::{action_bar::ActionBar, content::Content},
+    prelude::*,
+};
 use dioxus::prelude::*;
 use fermi::{use_atom_ref, UseAtomRef};
 use indexmap::IndexMap;
@@ -112,7 +115,9 @@ pub fn PublicPostEntry(cx: Scope, post_id: PostId) -> Element {
                 Content {
                     post: this_post,
                 }
-                // action bar
+                ActionBar {
+                    post_id: this_post.id
+                }
                 hr {}
             }
         }

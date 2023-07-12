@@ -60,12 +60,17 @@ pub fn NavButton<'a>(cx: Scope<'a, NavButtonProps<'a>>) -> Element {
 
 pub fn Navbar(cx: Scope) -> Element {
     let hide_new_post_popup = use_state(cx, || true);
+    let router = use_router(cx);
 
     cx.render(rsx! {
         nav { class: "max-w-[var(--content-max-width)] h-[var(--navbar-height)] fixed bottom-0 left-0 right-0 mx-auto border-t navbar-bg-color navbar-border-color",
             div { class: "grid grid-cols-3 justify-around w-full h-full items-center shadow-inner",
-                NavButton { img: "/static/icons/icon-home.svg", label: "Home", onclick: |_| () }
-                NavButton { img: "/static/icons/icon-trending.svg", label: "Trending", onclick: |_| () }
+                NavButton { img: "/static/icons/icon-home.svg", label: "Home", onclick: |_| {
+                    router.navigate_to(page::HOME);
+                } }
+                NavButton { img: "/static/icons/icon-trending.svg", label: "Trending", onclick: |_| {
+                    router.navigate_to(page::POSTS_TRENDING);
+                } }
                 NavButton {
                     img: "/static/icons/icon-new-post.svg",
                     label: "Post",
