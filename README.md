@@ -28,6 +28,7 @@ installation instructions.
 
 ```bash
 cargo run -p project-init
+cargo install watchexec-cli
 ```
 
 If on windows, also run:

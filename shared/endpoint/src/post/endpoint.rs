@@ -3,7 +3,7 @@ use uchat_domain::ids::PostId;
 
 use crate::Endpoint;
 
-use super::types::{BookmarkAction, Content, LikeStatus, NewPostOptions, PublicPost};
+use super::types::{BookmarkAction, BoostAction, Content, LikeStatus, NewPostOptions, PublicPost};
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct NewPost {
@@ -33,6 +33,17 @@ pub struct Bookmark {
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct BookmarkOk {
     pub status: BookmarkAction,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct Boost {
+    pub post_id: PostId,
+    pub action: BoostAction,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct BoostOk {
+    pub status: BoostAction,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]

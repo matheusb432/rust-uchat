@@ -78,3 +78,18 @@ impl Into<bool> for BookmarkAction {
         }
     }
 }
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq)]
+pub enum BoostAction {
+    Add,
+    Remove,
+}
+
+impl Into<bool> for BoostAction {
+    fn into(self) -> bool {
+        match self {
+            BoostAction::Add => true,
+            BoostAction::Remove => false,
+        }
+    }
+}

@@ -143,13 +143,6 @@ pub fn delete_bookmark(
     }
 }
 
-// reactions (user_id, post_id) {
-//     user_id -> Uuid,
-//     post_id -> Uuid,
-//     created_at -> Timestamptz,
-//     like_status -> Int2,
-//     reaction -> Nullable<Jsonb>,
-// }
 #[derive(Clone, Debug, DieselNewType, Serialize, Deserialize)]
 pub struct ReactionData(serde_json::Value);
 
@@ -238,4 +231,76 @@ pub fn aggregate_reactions(
         dislikes,
         boosts,
     })
+}
+
+pub fn boost(
+    conn: &mut PgConnection,
+    user_id: UserId,
+    post_id: PostId,
+    when: DateTime<Utc>,
+) -> Result<(), DieselError> {
+    let pid = post_id;
+    let uid = user_id;
+
+    {
+        use crate::schema::boosts::dsl::*;
+
+        diesel::insert_into(boosts)
+            .values((user_id.eq(uid), post_id.eq(pid), boosted_at.eq(when)))
+            .on_conflict((user_id, post_id))
+            .do_update()
+            .set(boosted_at.eq(when))
+            .execute(conn)
+            .map(|_| ())
+    }
+}
+
+// TODO refactor closure duplications in boost and bookmark
+pub fn get_boost(
+    conn: &mut PgConnection,
+    user_id: UserId,
+    post_id: PostId,
+) -> Result<bool, DieselError> {
+    let uid = user_id;
+    let pid = post_id;
+
+    {
+        use crate::schema::boosts::dsl::*;
+        use diesel::dsl::count;
+
+        boosts
+            .filter(post_id.eq(pid))
+            .filter(user_id.eq(uid))
+            .select(count(post_id))
+            .get_result(conn)
+            .optional()
+            .map(|n: Option<i64>| match n {
+                Some(n) => n == 1,
+                None => false,
+            })
+    }
+}
+
+pub fn delete_boost(
+    conn: &mut PgConnection,
+    user_id: UserId,
+    post_id: PostId,
+) -> Result<DeleteStatus, DieselError> {
+    let uid = user_id;
+    let pid = post_id;
+    {
+        use crate::schema::boosts::dsl::*;
+
+        diesel::delete(boosts)
+            .filter(post_id.eq(pid))
+            .filter(user_id.eq(uid))
+            .execute(conn)
+            .map(|rowcount| {
+                if rowcount > 0 {
+                    DeleteStatus::Deleted
+                } else {
+                    DeleteStatus::NotFound
+                }
+            })
+    }
 }
