@@ -1,6 +1,8 @@
 #![allow(non_snake_case)]
 
-use crate::{components::post::quick_respond::QuickRespond, prelude::*, toasty};
+use crate::{
+    components::post::quick_respond::QuickRespond, prelude::*, toasty, util::RequestError,
+};
 use dioxus::prelude::*;
 use uchat_domain::ids::PostId;
 use uchat_endpoint::post::types::LikeStatus;
@@ -227,7 +229,7 @@ pub fn ActionBar(cx: Scope, post_id: PostId) -> Element {
     let quick_respond_opened = use_state(cx, || false).clone();
 
     let this_post = post_manager.read();
-    let this_post = this_post.get(&post_id).unwrap();
+    let this_post = this_post.get(post_id).unwrap();
     let this_post_id = this_post.id;
 
     cx.render(rsx! {

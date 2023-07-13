@@ -4,10 +4,7 @@ pub mod action_bar;
 pub mod content;
 pub mod quick_respond;
 
-use crate::{
-    components::post::{action_bar::ActionBar, content::Content},
-    prelude::*,
-};
+use crate::components::post::{action_bar::ActionBar, content::Content};
 use dioxus::prelude::*;
 use fermi::{use_atom_ref, UseAtomRef};
 use indexmap::IndexMap;
@@ -96,10 +93,9 @@ pub fn Header<'a>(cx: Scope<'a>, post: &'a PublicPost) -> Element {
 #[inline_props]
 pub fn PublicPostEntry(cx: Scope, post_id: PostId) -> Element {
     let post_manager = use_post_manager(cx);
-    let router = use_router(cx);
 
     let this_post = {
-        let post = post_manager.read().get(&post_id).unwrap().clone();
+        let post = post_manager.read().get(post_id).unwrap().clone();
         use_state(cx, || post)
     };
 

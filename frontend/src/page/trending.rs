@@ -6,17 +6,14 @@ use crate::{
 };
 
 use api_client::ApiClient;
-use dioxus::{html::h1, prelude::*};
-use dioxus_router::use_router;
+use dioxus::prelude::*;
 use toaster::use_toaster;
-use uchat_domain::{self, UserFacingError};
 
 use crate::{components::toaster, toasty, util::api_client};
 
 pub fn Trending(cx: Scope) -> Element {
     let api_client = ApiClient::global();
 
-    let router = use_router(cx);
     let post_manager = use_post_manager(cx);
     let toaster = use_toaster(cx);
 

@@ -1,11 +1,8 @@
 use crate::{error::ApiErr, prelude::*};
 use axum::{async_trait, Json};
-use chrono::{Duration, Utc};
-use tracing::info;
-use uchat_domain::{
-    ids::{ImageId, UserId},
-    Username,
-};
+use chrono::Utc;
+
+use uchat_domain::{ids::ImageId, Username};
 use uchat_endpoint::{
     app_url::{self, user_content},
     post::{
@@ -15,9 +12,11 @@ use uchat_endpoint::{
         },
         types::{BookmarkAction, BoostAction, ImageKind, LikeStatus, PublicPost},
     },
-    RequestFailed,
 };
-use uchat_query::{post::Post, session::Session, AsyncConnection};
+use uchat_query::{
+    post::{AggregatePostInfo, Post},
+    AsyncConnection,
+};
 
 use crate::{
     error::ApiResult,
@@ -58,7 +57,7 @@ pub fn to_public(
                 let profile = query_user::get(conn, post.user_id)?;
                 super::user::to_public(profile)?
             },
-            content: content,
+            content,
             time_posted: post.time_posted,
             reply_to: {
                 match post.reply_to {
@@ -103,12 +102,7 @@ pub fn to_public(
             boosts: aggregate_reactions.boosts,
         })
     } else {
-        Err(ApiErr {
-            code: Some(StatusCode::INTERNAL_SERVER_ERROR),
-            err: color_eyre::Report::new(RequestFailed {
-                msg: "invalid post data".to_string(),
-            }),
-        })
+        Err(ApiErr::from_msg("invalid post data"))
     }
 }
 
@@ -120,7 +114,7 @@ impl AuthorizedApiRequest for NewPost {
         self,
         DbConnection(mut conn): DbConnection,
         session: UserSession,
-        state: AppState,
+        _state: AppState,
     ) -> ApiResult<Self::Response> {
         use uchat_endpoint::post::types::Content;
         let mut content = self.content;
@@ -148,7 +142,7 @@ impl AuthorizedApiRequest for TrendingPosts {
         self,
         DbConnection(mut conn): DbConnection,
         session: UserSession,
-        state: AppState,
+        _state: AppState,
     ) -> ApiResult<Self::Response> {
         use uchat_query::post as query_post;
 
@@ -176,7 +170,7 @@ impl AuthorizedApiRequest for Bookmark {
         self,
         DbConnection(mut conn): DbConnection,
         session: UserSession,
-        state: AppState,
+        _state: AppState,
     ) -> ApiResult<Self::Response> {
         match self.action {
             BookmarkAction::Add => {
@@ -204,7 +198,7 @@ impl AuthorizedApiRequest for Boost {
         self,
         DbConnection(mut conn): DbConnection,
         session: UserSession,
-        state: AppState,
+        _state: AppState,
     ) -> ApiResult<Self::Response> {
         match self.action {
             BoostAction::Add => {
@@ -232,7 +226,7 @@ impl AuthorizedApiRequest for React {
         self,
         DbConnection(mut conn): DbConnection,
         session: UserSession,
-        state: AppState,
+        _state: AppState,
     ) -> ApiResult<Self::Response> {
         let reaction = uchat_query::post::Reaction {
             post_id: self.post_id,
@@ -248,15 +242,16 @@ impl AuthorizedApiRequest for React {
 
         uchat_query::post::react(&mut conn, reaction)?;
 
-        // TODO refactor to use destructuring assignment
-        let aggregate_reactions = uchat_query::post::aggregate_reactions(&mut conn, self.post_id)?;
+        let AggregatePostInfo {
+            likes, dislikes, ..
+        } = uchat_query::post::aggregate_reactions(&mut conn, self.post_id)?;
 
         Ok((
             StatusCode::OK,
             Json(ReactOk {
                 like_status: self.like_status,
-                likes: aggregate_reactions.likes,
-                dislikes: aggregate_reactions.dislikes,
+                likes,
+                dislikes,
             }),
         ))
     }

@@ -1,22 +1,24 @@
 #![allow(non_snake_case)]
 
 use crate::prelude::*;
-use dioxus::{prelude::*, html::figcaption};
+use dioxus::prelude::*;
 use uchat_domain::ids::PostId;
-use uchat_endpoint::post::types::{Chat as EndpointChat, Image as EndpointImage, Content as EndpointContent, PublicPost, ImageKind};
+use uchat_endpoint::post::types::{
+    Chat as EndpointChat, Content as EndpointContent, Image as EndpointImage, ImageKind, PublicPost,
+};
 
 #[inline_props]
 pub fn Image<'a>(cx: Scope<'a>, post_id: PostId, content: &'a EndpointImage) -> Element {
     let url = if let ImageKind::Url(url) = &content.kind {
         url
     } else {
-        return cx.render( rsx! { "image not found" });
+        return cx.render(rsx! { "image not found" });
     };
 
     let caption_el = content
-    .caption
-    .as_ref()
-    .map(|caption| rsx! { figcaption { em { "{caption.as_ref()}" }} });
+        .caption
+        .as_ref()
+        .map(|caption| rsx! { figcaption { em { "{caption.as_ref()}" }} });
 
     cx.render(rsx! {
         figure {
@@ -55,7 +57,7 @@ pub fn Content<'a>(cx: Scope<'a>, post: &'a PublicPost) -> Element {
             match &post.content {
                 EndpointContent::Chat(content) => rsx! {Chat { post_id: post.id, content: content }},
                 EndpointContent::Image(content) => rsx! {Image { post_id: post.id, content: content }},
-                _ => todo!(),    
+                _ => todo!(),
             }
         }
     })

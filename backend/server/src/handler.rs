@@ -89,7 +89,22 @@ where
     Ok(())
 }
 
-// TODO refactor to add proper error handling via ApiErr
+const PARSE_ERR: &str =
+    "Failed to parse image data url, it must be in a 'data:text/plain;base64' format";
+
+fn parse_img_data_url(raw: &str) -> Result<(&str, &str), ApiErr> {
+    // NOTE Using a closure makes it easier to refactor this to have more specific error handling if necessary
+    let parse = move || {
+        let (header, image_data) = raw.split_once(',')?;
+        // ? header: data:text/plain;base64
+        let mime_type = header.split_once("data:")?.1.split_once(";base64")?.0;
+
+        Some((image_data, mime_type))
+    };
+
+    parse().ok_or_else(|| ApiErr::from_msg(PARSE_ERR))
+}
+
 pub async fn load_image(
     Path(img_id): Path<Uuid>,
 ) -> Result<Response<Full<axum::body::Bytes>>, ApiErr> {
@@ -99,18 +114,8 @@ pub async fn load_image(
     path.push(img_id.to_string());
 
     let raw = fs::read_to_string(path).await?;
-    // ? data:text/plain;base64, ...
-    // ? mime type => 'text/plain'
-    let (header, image_data) = raw.split_once(',').unwrap();
-    // ? header: data:text/plain;base64
-    let mime_type = header
-        .split_once("data:")
-        .unwrap()
-        .1
-        .split_once(";base64")
-        .unwrap()
-        .0;
 
+    let (image_data, mime_type) = parse_img_data_url(&raw)?;
     {
         use base64::{engine::general_purpose, Engine as _};
         let image_data = general_purpose::STANDARD.decode(image_data).unwrap();

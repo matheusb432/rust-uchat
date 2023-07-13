@@ -122,14 +122,15 @@ macro_rules! fetch_json {
     (<$target:ty>, $client:ident, $request:expr) => {{
         use uchat_endpoint::Endpoint;
         use $crate::util::RequestError;
-        // TODO rename to `timeout`?
         let timeout = std::time::Duration::from_millis(6000);
         let response = $client.post_json($request.url(), &$request, timeout).await;
         match response {
             Ok(res) => {
                 if res.status().is_success() {
-                    // TODO refactor, should not unwrap or else it can panic easily
-                    Ok(res.json::<$target>().await.unwrap())
+                    Ok(res
+                        .json::<$target>()
+                        .await
+                        .expect("Could not parse JSON body"))
                 } else {
                     let status = res.status();
                     match res.json::<uchat_endpoint::RequestFailed>().await {

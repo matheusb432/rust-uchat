@@ -37,6 +37,22 @@ If on windows, also run:
 cargo install --locked wasm-bindgen-cli
 ```
 
+## Formatting
+
+To format the code, run:
+
+```bash
+cargo fmt
+```
+
+## Linting
+
+To lint the code, run:
+
+```bash
+cargo clippy
+```
+
 ## Notes in Code
 
 - To visualize notes right next to their example implementations that are scattered throughout this repository, I'd recommend using the VS Code extension `Todo Tree`, and then just filter for any comment with a `NOTE` prefix to it.

@@ -1,13 +1,11 @@
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel::{PgConnection, RunQueryDsl};
-use password_hash::PasswordHashString;
+
 use serde::{Deserialize, Serialize};
 use uchat_domain::ids::{PostId, UserId};
-use uchat_domain::Username;
-use uuid::Uuid;
 
-use crate::{schema, DieselError, QueryError};
+use crate::{schema, DieselError};
 
 #[derive(Clone, Debug, DieselNewType, Serialize, Deserialize)]
 pub struct Content(pub serde_json::Value);
@@ -31,7 +29,6 @@ impl Post {
         options: uchat_endpoint::post::types::NewPostOptions,
     ) -> Result<Self, serde_json::Error> {
         Ok(Self {
-            // ! necessary to be `Uuid::new_v4().into()` ?
             id: PostId::new(),
             user_id: posted_by,
             content: Content(serde_json::to_value(content)?),
@@ -106,10 +103,7 @@ pub fn get_bookmark(
             .select(count(post_id))
             .get_result(conn)
             .optional()
-            .map(|n: Option<i64>| match n {
-                Some(n) => n == 1,
-                None => false,
-            })
+            .map(is_one)
     }
 }
 
@@ -117,6 +111,16 @@ pub fn get_bookmark(
 pub enum DeleteStatus {
     Deleted,
     NotFound,
+}
+
+impl DeleteStatus {
+    pub fn new(count: usize) -> Self {
+        if count > 0 {
+            DeleteStatus::Deleted
+        } else {
+            DeleteStatus::NotFound
+        }
+    }
 }
 
 pub fn delete_bookmark(
@@ -133,13 +137,7 @@ pub fn delete_bookmark(
             .filter(post_id.eq(pid))
             .filter(user_id.eq(uid))
             .execute(conn)
-            .map(|rowcount| {
-                if rowcount > 0 {
-                    DeleteStatus::Deleted
-                } else {
-                    DeleteStatus::NotFound
-                }
-            })
+            .map(DeleteStatus::new)
     }
 }
 
@@ -255,6 +253,13 @@ pub fn boost(
     }
 }
 
+fn is_one(n: Option<i64>) -> bool {
+    match n {
+        Some(n) => n == 1,
+        None => false,
+    }
+}
+
 // TODO refactor closure duplications in boost and bookmark
 pub fn get_boost(
     conn: &mut PgConnection,
@@ -274,10 +279,7 @@ pub fn get_boost(
             .select(count(post_id))
             .get_result(conn)
             .optional()
-            .map(|n: Option<i64>| match n {
-                Some(n) => n == 1,
-                None => false,
-            })
+            .map(is_one)
     }
 }
 
@@ -295,12 +297,6 @@ pub fn delete_boost(
             .filter(post_id.eq(pid))
             .filter(user_id.eq(uid))
             .execute(conn)
-            .map(|rowcount| {
-                if rowcount > 0 {
-                    DeleteStatus::Deleted
-                } else {
-                    DeleteStatus::NotFound
-                }
-            })
+            .map(DeleteStatus::new)
     }
 }

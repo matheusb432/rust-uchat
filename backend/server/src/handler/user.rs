@@ -1,4 +1,4 @@
-use crate::{extractor::UserSession, prelude::*};
+use crate::prelude::*;
 use axum::{async_trait, Json};
 use chrono::{Duration, Utc};
 use tracing::info;
@@ -7,7 +7,7 @@ use uchat_endpoint::user::{
     endpoint::{CreateUser, CreateUserOk, Login, LoginOk},
     types::PublicUserProfile,
 };
-use uchat_query::{session::Session, user::User, AsyncConnection};
+use uchat_query::{session::Session, user::User};
 
 use crate::{error::ApiResult, extractor::DbConnection, AppState};
 

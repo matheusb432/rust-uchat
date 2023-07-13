@@ -3,12 +3,27 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
+use uchat_endpoint::RequestFailed;
 
 pub type ApiResult<T> = std::result::Result<T, ApiErr>;
 
 pub struct ApiErr {
     pub code: Option<StatusCode>,
     pub err: color_eyre::Report,
+}
+
+impl ApiErr {
+    pub fn new<T: Into<String>>(code: StatusCode, err: T) -> Self {
+        let msg: String = err.into();
+        Self {
+            code: Some(code),
+            err: color_eyre::Report::new(RequestFailed { msg }),
+        }
+    }
+
+    pub fn from_msg<T: Into<String>>(msg: T) -> Self {
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, msg)
+    }
 }
 
 pub fn err_response<T: Into<String>>(code: StatusCode, msg: T) -> Response {

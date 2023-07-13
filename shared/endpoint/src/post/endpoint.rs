@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use uchat_domain::ids::PostId;
 
-use crate::Endpoint;
-
 use super::types::{BookmarkAction, BoostAction, Content, LikeStatus, NewPostOptions, PublicPost};
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]

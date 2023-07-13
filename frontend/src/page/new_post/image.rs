@@ -4,9 +4,8 @@ use crate::{
     fetch_json,
     prelude::*,
     toasty,
-    util::{self, api_client},
+    util::{self},
 };
-use chrono::Duration;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use uchat_endpoint::post::types::{ImageKind, NewPostOptions};
@@ -128,7 +127,7 @@ pub fn NewImage(cx: Scope) -> Element {
     let page_state = use_ref(cx, PageState::default);
     let is_invalid = !page_state.read().can_submit();
     let toaster = use_toaster(cx);
-    let router = use_router(&cx);
+    let router = use_router(cx);
     let api_client = ApiClient::global();
 
     let form_onsubmit = async_handler!(

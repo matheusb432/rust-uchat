@@ -7,6 +7,7 @@ use crate::{
     components::keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
     fetch_json,
     prelude::*,
+    toasty,
     util::ApiClient,
 };
 
@@ -81,10 +82,13 @@ pub fn Login(cx: Scope) -> Element {
     let api_client = ApiClient::global();
     let page_state = PageState::new(cx);
     let page_state = use_ref(cx, || page_state);
+    let toaster = use_toaster(cx);
     let router = use_router(cx);
 
-    let form_onsubmit =
-        async_handler!(&cx, [api_client, page_state, router], move |_| async move {
+    let form_onsubmit = async_handler!(
+        &cx,
+        [api_client, page_state, router, toaster],
+        move |_| async move {
             // NOTE Using the `Login` here will shadow the `Login` from the upper scope
             use uchat_endpoint::user::endpoint::{Login, LoginOk};
             let request_data = {
@@ -117,9 +121,12 @@ pub fn Login(cx: Scope) -> Element {
                     );
                     router.navigate_to(page::HOME);
                 }
-                Err(e) => {}
+                Err(e) => {
+                    toasty!(toaster => error: format!("Failed to login: {e}"));
+                }
             }
-        });
+        }
+    );
 
     let username_oninput = sync_handler!([page_state], move |ev: FormEvent| {
         if let Err(e) = uchat_domain::Username::new(&ev.value) {
@@ -141,7 +148,8 @@ pub fn Login(cx: Scope) -> Element {
         page_state.with_mut(|state| state.password.set(ev.value.clone()));
     });
 
-    let submit_btn_style = maybe_class!("btn-disabled", !page_state.with(|state| state.can_submit()));
+    let submit_btn_style =
+        maybe_class!("btn-disabled", !page_state.with(|state| state.can_submit()));
 
     cx.render(rsx! {
         form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: form_onsubmit,

@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::{prelude::*, toasty, util::api_client};
+use crate::{prelude::*, toasty};
 use dioxus::prelude::*;
 use uchat_domain::{ids::PostId, post::Message};
 
@@ -47,7 +47,7 @@ pub fn QuickRespond(cx: Scope, post_id: PostId, opened: UseState<bool>) -> Eleme
         &cx,
         [toaster, api_client, message, opened],
         move |_| async move {
-            use uchat_domain::post::{Headline, Message};
+            use uchat_domain::post::Message;
             use uchat_endpoint::post::endpoint::{NewPost, NewPostOk};
             use uchat_endpoint::post::types::{Chat, NewPostOptions};
 

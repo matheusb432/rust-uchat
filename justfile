@@ -36,6 +36,9 @@ serve-frontend *ARGS:
     trunk --config {{TRUNK_CONFIG_FILE}} serve {{ ARGS }}
 
 # run API server
+run-api *ARGS:
+    cargo run -p uchat_server {{ ARGS }}
+
 # NOTE hot reload with watchexec
 serve-api *ARGS:
     watchexec -r -i "frontend/**" -i "target/**" --exts rs,sql,toml cargo run -p uchat_server {{ ARGS }}

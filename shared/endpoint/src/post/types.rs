@@ -114,9 +114,9 @@ pub enum BookmarkAction {
     Remove,
 }
 
-impl Into<bool> for BookmarkAction {
-    fn into(self) -> bool {
-        match self {
+impl From<BookmarkAction> for bool {
+    fn from(val: BookmarkAction) -> Self {
+        match val {
             BookmarkAction::Add => true,
             BookmarkAction::Remove => false,
         }
@@ -129,9 +129,9 @@ pub enum BoostAction {
     Remove,
 }
 
-impl Into<bool> for BoostAction {
-    fn into(self) -> bool {
-        match self {
+impl From<BoostAction> for bool {
+    fn from(val: BoostAction) -> Self {
+        match val {
             BoostAction::Add => true,
             BoostAction::Remove => false,
         }

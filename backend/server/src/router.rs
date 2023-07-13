@@ -16,7 +16,7 @@ use tower_http::{
     LatencyUnit,
 };
 use tracing::Level;
-use tracing_subscriber::fmt::format;
+
 use uchat_endpoint::{
     post::endpoint::{Bookmark, Boost, NewPost, React, TrendingPosts},
     user::endpoint::{CreateUser, Login},

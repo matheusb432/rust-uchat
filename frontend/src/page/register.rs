@@ -7,7 +7,7 @@ use crate::{
     components::keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
     fetch_json,
     prelude::*,
-    util::{api_client, ApiClient},
+    util::ApiClient,
 };
 
 pub struct PageState {
