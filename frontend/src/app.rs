@@ -22,12 +22,15 @@ pub fn App(cx: Scope) -> Element {
     // ? The rsx! macro is a macro that returns an `Element` type
     cx.render(rsx! {
         Router {
-            Route { to: page::HOME, page::Home {} }
-            Route { to: page::ACCOUNT_REGISTER, page::Register {} }
-            Route { to: page::ACCOUNT_LOGIN, page::Login {} }
-            Route { to: page::POST_NEW_CHAT, page::NewChat {} }
-            Route { to: page::POST_NEW_IMAGE, page::NewImage {} }
-            Route { to: page::POSTS_TRENDING, page::Trending {} }
+            main {
+                class: "max-w-[var(--content-max-width)] min-w-[var(--content-min-width)] mb-[var(--navbar-height)] mx-auto p-4",
+                Route { to: page::HOME, page::Home {} }
+                Route { to: page::ACCOUNT_REGISTER, page::Register {} }
+                Route { to: page::ACCOUNT_LOGIN, page::Login {} }
+                Route { to: page::POST_NEW_CHAT, page::NewChat {} }
+                Route { to: page::POST_NEW_IMAGE, page::NewImage {} }
+                Route { to: page::POSTS_TRENDING, page::Trending {} }
+            }
             ToastRoot {toaster: toaster}
             Navbar {}
         }

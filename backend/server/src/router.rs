@@ -3,6 +3,7 @@ use crate::{
     AppState,
 };
 use axum::{
+    extract::DefaultBodyLimit,
     routing::{get, post},
     Router,
 };
@@ -10,6 +11,7 @@ use hyper::{header::CONTENT_TYPE, http::HeaderValue, Method};
 use tower::ServiceBuilder;
 use tower_http::{
     cors::CorsLayer,
+    limit::RequestBodyLimitLayer,
     trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer},
     LatencyUnit,
 };
@@ -20,6 +22,8 @@ use uchat_endpoint::{
     user::endpoint::{CreateUser, Login},
     Endpoint,
 };
+
+const EIGHT_MEGABYTES: usize = 8 * 1024 * 1024;
 
 pub fn new_router(state: AppState) -> Router {
     let img_route = {
@@ -39,7 +43,9 @@ pub fn new_router(state: AppState) -> Router {
         .route(TrendingPosts::URL, post(with_handler::<TrendingPosts>))
         .route(Bookmark::URL, post(with_handler::<Bookmark>))
         .route(Boost::URL, post(with_handler::<Boost>))
-        .route(React::URL, post(with_handler::<React>));
+        .route(React::URL, post(with_handler::<React>))
+        .layer(DefaultBodyLimit::disable())
+        .layer(RequestBodyLimitLayer::new(EIGHT_MEGABYTES));
 
     Router::new()
         .merge(public_routes)
