@@ -32,7 +32,6 @@ pub fn new_router(state: AppState) -> Router {
         // NOTE Dynamic route for images
         .route(&format!("/{img_route}:id"), get(handler::load_image))
         .route(CreateUser::URL, post(with_public_handler::<CreateUser>))
-        .route(CreateUser::URL, post(with_public_handler::<CreateUser>))
         .route(Login::URL, post(with_public_handler::<Login>));
 
     let authorized_routes = Router::new()

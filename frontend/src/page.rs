@@ -17,4 +17,5 @@ pub mod route {
     pub const HOME: &str = "/home";
     pub const POST_NEW_CHAT: &str = "/post/new_chat";
     pub const POSTS_TRENDING: &str = "/posts/trending";
+    pub const POST_NEW_IMAGE: &str = "/post/new_image";
 }

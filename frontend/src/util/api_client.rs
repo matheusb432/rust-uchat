@@ -131,8 +131,18 @@ macro_rules! fetch_json {
                     // TODO refactor, should not unwrap or else it can panic easily
                     Ok(res.json::<$target>().await.unwrap())
                 } else {
-                    let err_payload = res.json::<uchat_endpoint::RequestFailed>().await.unwrap();
-                    Err(RequestError::BadRequest(err_payload))
+                    let status = res.status();
+                    match res.json::<uchat_endpoint::RequestFailed>().await {
+                        Ok(payload) => Err(RequestError::BadRequest(payload)),
+                        Err(_) => Err(RequestError::BadRequest(uchat_endpoint::RequestFailed {
+                            msg: {
+                                status
+                                    .canonical_reason()
+                                    .unwrap_or_else(|| "An error ocurred.")
+                                    .to_string()
+                            },
+                        })),
+                    }
                 }
             }
             Err(e) => Err(e),
