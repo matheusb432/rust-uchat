@@ -3,7 +3,8 @@ use diesel::prelude::*;
 use diesel::{PgConnection, RunQueryDsl};
 
 use serde::{Deserialize, Serialize};
-use uchat_domain::ids::{PostId, UserId};
+use uchat_domain::ids::{PollChoiceId, PostId, UserId};
+use uchat_endpoint::post::types::VoteCast;
 
 use crate::{schema, DieselError};
 
@@ -42,10 +43,29 @@ impl Post {
 
 pub fn new(conn: &mut PgConnection, post: Post) -> Result<PostId, DieselError> {
     conn.transaction::<PostId, DieselError, _>(|conn| {
+        use uchat_endpoint::post::types::Content as EndpointContent;
+
         diesel::insert_into(schema::posts::table)
             .values(&post)
             .execute(conn)?;
-        Ok(post.id)
+
+        match serde_json::from_value::<EndpointContent>(post.content.0) {
+            Ok(EndpointContent::Poll(poll)) => {
+                for choice in &poll.choices {
+                    use schema::poll_choices::{self, columns as col};
+
+                    diesel::insert_into(poll_choices::table)
+                        .values((
+                            col::id.eq(choice.id),
+                            col::choice.eq(choice.description.as_ref()),
+                            col::post_id.eq(post.id),
+                        ))
+                        .execute(conn)?;
+                }
+                Ok(post.id)
+            }
+            _ => Ok(post.id),
+        }
     })
 }
 
@@ -298,5 +318,82 @@ pub fn delete_boost(
             .filter(user_id.eq(uid))
             .execute(conn)
             .map(DeleteStatus::new)
+    }
+}
+
+pub fn vote(
+    conn: &mut PgConnection,
+    user_id: UserId,
+    post_id: PostId,
+    choice_id: PollChoiceId,
+) -> Result<VoteCast, DieselError> {
+    let uid = user_id;
+    let pid = post_id;
+    let cid = choice_id;
+
+    {
+        use crate::schema::poll_votes::dsl::*;
+
+        diesel::insert_into(poll_votes)
+            .values((user_id.eq(uid), post_id.eq(pid), choice_id.eq(cid)))
+            .on_conflict((user_id, post_id))
+            .do_nothing()
+            .execute(conn)
+            .map(|n| {
+                if n == 1 {
+                    VoteCast::Yes
+                } else {
+                    VoteCast::AlreadyVoted
+                }
+            })
+    }
+}
+
+pub fn did_vote(
+    conn: &mut PgConnection,
+    user_id: UserId,
+    post_id: PostId,
+) -> Result<Option<PollChoiceId>, DieselError> {
+    let uid = user_id;
+    let pid = post_id;
+
+    {
+        use crate::schema::poll_votes::dsl::*;
+
+        poll_votes
+            .filter(post_id.eq(pid))
+            .filter(user_id.eq(uid))
+            .select(choice_id)
+            .get_result(conn)
+            .optional()
+    }
+}
+
+pub struct PollResults {
+    pub post_id: PostId,
+    pub results: Vec<(PollChoiceId, i64)>,
+}
+
+pub fn get_poll_results(
+    conn: &mut PgConnection,
+    post_id: PostId,
+) -> Result<PollResults, DieselError> {
+    let pid = post_id;
+
+    {
+        use crate::schema::poll_votes::dsl::*;
+
+        use diesel::dsl::count;
+
+        let results = poll_votes
+            .filter(post_id.eq(pid))
+            .group_by(choice_id)
+            .select((choice_id, count(choice_id)))
+            .load::<(PollChoiceId, i64)>(conn)?;
+
+        Ok(PollResults {
+            post_id: pid,
+            results,
+        })
     }
 }
