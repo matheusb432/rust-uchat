@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::{fetch_json, prelude::*, toasty};
+use crate::{fetch_json, prelude::*, ret_if, toasty};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use uchat_endpoint::post::types::NewPostOptions;
@@ -15,13 +15,12 @@ impl PageState {
     pub fn can_submit(&self) -> bool {
         use uchat_domain::post::{Headline, Message};
 
-        if Message::new(&self.message).is_err() {
-            return false;
-        }
+        ret_if!(Message::new(&self.message).is_err(), false);
+        ret_if!(
+            !self.headline.is_empty() && Headline::new(&self.headline).is_err(),
+            false
+        );
 
-        if !self.headline.is_empty() && Headline::new(&self.headline).is_err() {
-            return false;
-        }
         true
     }
 }
@@ -101,18 +100,19 @@ pub fn NewChat(cx: Scope) -> Element {
             use uchat_endpoint::post::endpoint::{NewPost, NewPostOk};
             use uchat_endpoint::post::types::Chat;
 
+            let read_ps = &page_state.read();
+
             let request = NewPost {
                 content: Chat {
                     headline: {
-                        let headline = &page_state.read().headline;
-                        // TODO refactor (ok() should do it? also two reads on the page_state?)
+                        let headline = &read_ps.headline;
                         if headline.is_empty() {
                             None
                         } else {
-                            Some(Headline::new(headline).unwrap())
+                            Headline::new(headline).ok()
                         }
                     },
-                    message: Message::new(&page_state.read().message).unwrap(),
+                    message: Message::new(&read_ps.message).unwrap(),
                 }
                 .into(),
                 options: NewPostOptions::default(),

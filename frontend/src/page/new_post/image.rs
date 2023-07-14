@@ -3,7 +3,7 @@
 use crate::{
     fetch_json,
     prelude::*,
-    toasty,
+    ret_if, toasty,
     util::{self},
 };
 use dioxus::prelude::*;
@@ -21,13 +21,11 @@ impl PageState {
     pub fn can_submit(&self) -> bool {
         use uchat_domain::post::Caption;
 
-        if !self.caption.is_empty() && Caption::new(&self.caption).is_err() {
-            return false;
-        }
-
-        if self.image.is_none() {
-            return false;
-        }
+        ret_if!(
+            !self.caption.is_empty() && Caption::new(&self.caption).is_err(),
+            false
+        );
+        ret_if!(self.image.is_none(), false);
 
         true
     }
@@ -138,19 +136,20 @@ pub fn NewImage(cx: Scope) -> Element {
             use uchat_endpoint::post::endpoint::{NewPost, NewPostOk};
             use uchat_endpoint::post::types::Image;
 
+            let read_ps = &page_state.read();
+
             let request = NewPost {
                 content: Image {
                     caption: {
-                        let caption = &page_state.read().caption;
-                        // TODO refactor (ok() should do it? also two reads on the page_state?)
+                        let caption = &read_ps.caption;
                         if caption.is_empty() {
                             None
                         } else {
-                            Some(Caption::new(caption).unwrap())
+                            Caption::new(caption).ok()
                         }
                     },
                     kind: {
-                        let image = &page_state.read().image;
+                        let image = &read_ps.image;
                         ImageKind::DataUrl(image.clone().unwrap())
                     },
                 }

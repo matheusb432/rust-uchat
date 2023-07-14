@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::{
     fetch_json,
     prelude::*,
-    toasty,
+    ret_if, toasty,
     util::{self},
 };
 use dioxus::prelude::*;
@@ -36,25 +36,17 @@ impl Default for PageState {
 }
 
 impl PageState {
-    // TODO refactor common can_submit pattern to be more concise
     pub fn can_submit(&self) -> bool {
-        if PollHeadline::new(&self.headline).is_err() {
-            return false;
-        }
-
-        if self.poll_choices.len() < 2 {
-            return false;
-        }
-
-        if self
-            .poll_choices
-            .values()
-            .map(PollChoiceDescription::new)
-            .collect::<Result<Vec<PollChoiceDescription>, _>>()
-            .is_err()
-        {
-            return false;
-        }
+        ret_if!(PollHeadline::new(&self.headline).is_err(), false);
+        ret_if!(self.poll_choices.len() < 2, false);
+        ret_if!(
+            self.poll_choices
+                .values()
+                .map(PollChoiceDescription::new)
+                .collect::<Result<Vec<PollChoiceDescription>, _>>()
+                .is_err(),
+            false
+        );
 
         true
     }

@@ -98,7 +98,7 @@ pub use sync_handler;
 /// # Example
 /// ```
 /// let x = 1;
-/// let y = ret_if!(x == 1; 2);
+/// let y = ret_if!(x == 1, 2);
 /// assert_eq!(y, 2);
 ///
 /// let none = ret_if!(2 == 2);
@@ -110,7 +110,7 @@ macro_rules! ret_if {
             return None;
         }
     };
-    ($cond:expr; $val:expr) => {
+    ($cond:expr, $val:expr) => {
         if $cond {
             return $val;
         }

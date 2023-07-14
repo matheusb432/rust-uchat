@@ -280,7 +280,6 @@ fn is_one(n: Option<i64>) -> bool {
     }
 }
 
-// TODO refactor closure duplications in boost and bookmark
 pub fn get_boost(
     conn: &mut PgConnection,
     user_id: UserId,
