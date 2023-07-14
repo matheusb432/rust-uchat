@@ -7,26 +7,27 @@ use dioxus::prelude::*;
 pub fn NewPostPopup(cx: Scope, hide: UseState<bool>) -> Element {
     let router = use_router(cx);
     let hide_class = maybe_class!("hidden", *hide.get());
+    let nav_to = |url: &str| {
+        router.navigate_to(url);
+        hide.set(true);
+    };
 
     // TODO refactor BUTTON_CLASS div to component
     const BUTTON_CLASS: &str = "grid grid-cols-[20px_1fr] gap-4 pl-4 justify-center items-center w-full h-12 border-y navbar-border-color";
 
     cx.render( rsx!{
         div { class: "flex flex-col absolute right-0 bottom-[var(--navbar-height)] w-28 items-center {hide_class} navbar-bg-color text-white text-sm",
-            div { class: BUTTON_CLASS, onclick: move |_| todo!(),
+            div { class: BUTTON_CLASS, onclick: move |_| nav_to(page::POST_NEW_POLL),
                 img { class: "invert", src: "/static/icons/icon-poll.svg" }
                 "Poll"
             }
-            div { class: BUTTON_CLASS, onclick: move |_| todo!(),
+            div { class: BUTTON_CLASS, onclick: move |_| nav_to(page::POST_NEW_IMAGE),
                 img { class: "invert", src: "/static/icons/icon-image.svg" }
                 "Image"
             }
             div {
                 class: BUTTON_CLASS,
-                onclick: move |_| {
-                    router.navigate_to(page::POST_NEW_CHAT);
-                    hide.set(true);
-                },
+                onclick: move |_| nav_to(page::POST_NEW_CHAT),
                 img { class: "invert", src: "/static/icons/icon-messages.svg" }
                 "Chat"
             }

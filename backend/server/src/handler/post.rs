@@ -8,7 +8,7 @@ use uchat_endpoint::{
     post::{
         endpoint::{
             Bookmark, BookmarkOk, Boost, BoostOk, NewPost, NewPostOk, React, ReactOk,
-            TrendingPosts, TrendingPostsOk,
+            TrendingPosts, TrendingPostsOk, Vote, VoteOk,
         },
         types::{BookmarkAction, BoostAction, ImageKind, LikeStatus, PublicPost},
     },
@@ -269,5 +269,22 @@ impl AuthorizedApiRequest for React {
                 dislikes,
             }),
         ))
+    }
+}
+
+#[async_trait]
+impl AuthorizedApiRequest for Vote {
+    type Response = (StatusCode, Json<VoteOk>);
+
+    async fn process_request(
+        self,
+        DbConnection(mut conn): DbConnection,
+        session: UserSession,
+        _state: AppState,
+    ) -> ApiResult<Self::Response> {
+        let cast =
+            uchat_query::post::vote(&mut conn, session.user_id, self.post_id, self.choice_id)?;
+
+        Ok((StatusCode::OK, Json(VoteOk { cast })))
     }
 }

@@ -86,5 +86,6 @@ route!("/account/login" => user::endpoint::Login);
 route!("/post/new" => post::endpoint::NewPost);
 route!("/post/bookmark" => post::endpoint::Bookmark);
 route!("/post/boost" => post::endpoint::Boost);
+route!("/post/vote" => post::endpoint::Vote);
 route!("/posts/trending" => post::endpoint::TrendingPosts);
 route!("/post/react" => post::endpoint::React);
