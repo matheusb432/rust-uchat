@@ -36,16 +36,10 @@ pub fn Trending(cx: Scope) -> Element {
         .iter()
         .map(|(&id, _)| {
             rsx! {
-                div {
-                    PublicPostEntry {
-                        post_id: id
-                    }
-                }
+                div { PublicPostEntry { post_id: id } }
             }
         })
         .collect::<Vec<LazyNodes>>();
 
-    cx.render(rsx! {
-        trending_posts.into_iter()
-    })
+    cx.render(rsx! {trending_posts.into_iter()})
 }

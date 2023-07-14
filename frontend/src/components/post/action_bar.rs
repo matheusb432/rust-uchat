@@ -1,8 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::{
-    components::post::quick_respond::QuickRespond, prelude::*, toasty, util::RequestError,
-};
+use crate::{components::post::quick_respond::QuickRespond, prelude::*, toasty};
 use dioxus::prelude::*;
 use uchat_domain::ids::PostId;
 use uchat_endpoint::post::types::LikeStatus;
@@ -63,29 +61,13 @@ pub fn LikeDislike(
 
     // TODO refactor icons to own components
     cx.render(rsx! {
-        div {
-            class: "cursor-pointer",
-            onclick: move |_| like_onclick(LikeStatus::Like),
-            img {
-                class: "actionbar-icon",
-                src: "{like_icon}",
-            }
-            div {
-                class: "actionbar-icon-text",
-                "{likes}"
-            }
+        div { class: "cursor-pointer", onclick: move |_| like_onclick(LikeStatus::Like),
+            img { class: "actionbar-icon", src: "{like_icon}" }
+            div { class: "actionbar-icon-text", "{likes}" }
         }
-        div {
-            class: "cursor-pointer",
-            onclick: move |_| like_onclick(LikeStatus::Dislike),
-            img {
-                class: "actionbar-icon",
-                src: "{dislike_icon}",
-            }
-            div {
-                class: "actionbar-icon-text",
-                "{dislikes}"
-            }
+        div { class: "cursor-pointer", onclick: move |_| like_onclick(LikeStatus::Dislike),
+            img { class: "actionbar-icon", src: "{dislike_icon}" }
+            div { class: "actionbar-icon-text", "{dislikes}" }
         }
     })
 }
@@ -127,14 +109,7 @@ pub fn Bookmark(cx: Scope, post_id: PostId, bookmarked: bool) -> Element {
     };
 
     cx.render(rsx! {
-        div {
-            class: "cursor-pointer",
-            onclick: bookmark_onclick,
-            img {
-                class: "actionbar-icon",
-                src: "{icon}",
-            }
-        }
+        div { class: "cursor-pointer", onclick: bookmark_onclick, img { class: "actionbar-icon", src: "{icon}" } }
     })
 }
 
@@ -176,17 +151,9 @@ pub fn Boost(cx: Scope, post_id: PostId, boosted: bool, boosts: i64) -> Element 
     };
 
     cx.render(rsx! {
-        div {
-            class: "cursor-pointer",
-            onclick: boost_onclick,
-            img {
-                class: "actionbar-icon",
-                src: "{icon}",
-            }
-            div {
-                class: "text-center",
-                "{boosts}"
-            }
+        div { class: "cursor-pointer", onclick: boost_onclick,
+            img { class: "actionbar-icon", src: "{icon}" }
+            div { class: "text-center", "{boosts}" }
         }
     })
 }
@@ -199,14 +166,7 @@ pub fn Comment(cx: Scope, opened: UseState<bool>) -> Element {
     });
 
     cx.render(rsx! {
-        div {
-            class: "cursor-pointer",
-            onclick: comment_onclick,
-            img {
-                class: "actionbar-icon",
-                src: "/static/icons/icon-messages.svg"
-            }
-        }
+        div { class: "cursor-pointer", onclick: comment_onclick, img { class: "actionbar-icon", src: "/static/icons/icon-messages.svg" } }
     })
 }
 
@@ -215,7 +175,7 @@ pub fn QuickRespondBox(cx: Scope, post_id: PostId, opened: UseState<bool>) -> El
     let element = match *opened.get() {
         true => {
             to_owned![opened, post_id];
-            Some(rsx! { QuickRespond { post_id: post_id, opened: opened }})
+            Some(rsx! { QuickRespond { post_id: post_id, opened: opened } })
         }
         false => None,
     };
@@ -233,30 +193,17 @@ pub fn ActionBar(cx: Scope, post_id: PostId) -> Element {
     let this_post_id = this_post.id;
 
     cx.render(rsx! {
-        div {
-            class: "flex justify-between w-full opacity-70 mt-4",
-            Boost {
-                post_id: this_post_id,
-                boosts: this_post.boosts,
-                boosted: this_post.boosted,
-            }
-            Bookmark {
-                bookmarked: this_post.bookmarked,
-                post_id: this_post_id
-            }
+        div { class: "flex justify-between w-full opacity-70 mt-4",
+            Boost { post_id: this_post_id, boosts: this_post.boosts, boosted: this_post.boosted }
+            Bookmark { bookmarked: this_post.bookmarked, post_id: this_post_id }
             LikeDislike {
                 post_id: this_post_id,
                 likes: this_post.likes,
                 dislikes: this_post.dislikes,
-                like_status: this_post.like_status,
+                like_status: this_post.like_status
             }
-            Comment {
-                opened: quick_respond_opened.clone()
-            }
+            Comment { opened: quick_respond_opened.clone() }
         }
-        QuickRespondBox {
-            post_id: this_post.id,
-            opened: quick_respond_opened,
-        }
+        QuickRespondBox { post_id: this_post.id, opened: quick_respond_opened }
     })
 }

@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  --appbar-height: 3.5rem;
   --navbar-height: 3.8rem;
   --content-min-width: 300px;
   --content-max-width: 576px;
@@ -40,5 +41,9 @@
 
   .actionbar-icon {
     @apply w-8 h-8;
+  }
+
+  .profile-portrait {
+    @apply object-cover rounded-md w-14 h-14;
   }
 }

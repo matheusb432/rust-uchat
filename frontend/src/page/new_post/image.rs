@@ -2,6 +2,7 @@
 
 use crate::{
     fetch_json,
+    page::new_post_app_bar::NewPostAppBar,
     prelude::*,
     ret_if, toasty,
     util::{self},
@@ -57,10 +58,7 @@ pub fn ImageInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
 
     cx.render(rsx! {
         div {
-            label {
-                r#for: "image-input",
-                "Upload Image"
-            }
+            label { r#for: "image-input", "Upload Image" }
             input {
                 class: "w-full",
                 id: "image-input",
@@ -76,19 +74,16 @@ pub fn ImageInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
 pub fn ImagePreview(cx: Scope, page_state: UseRef<PageState>) -> Element {
     let image_data = page_state.read().image.clone();
     let preview_el = if let Some(ref image) = image_data {
-        rsx! {
-            img {
-                class: "max-w-[calc(var(--content-max-width)/2)] max-h-[40vh]",
-                src: "{image}",
-            }
+        rsx! {img {
+            class: "max-w-[calc(var(--content-max-width)/2)] max-h-[40vh]",
+            src: "{image}"
+        }
         }
     } else {
-        rsx! {
-            div { "no image uploaded" }
-        }
+        rsx! { div { "no image uploaded" } }
     };
 
-    cx.render(rsx! { preview_el })
+    cx.render(rsx! {preview_el})
 }
 
 #[inline_props]
@@ -173,9 +168,10 @@ pub fn NewImage(cx: Scope) -> Element {
     let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
 
     cx.render(rsx! {
+        NewPostAppBar { title: "New Image".to_owned(), active_page: super::Pages::Image }
         form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
-        ImageInput { page_state: page_state.clone() }
-        ImagePreview { page_state: page_state.clone() }
+            ImageInput { page_state: page_state.clone() }
+            ImagePreview { page_state: page_state.clone() }
             CaptionInput { page_state: page_state.clone() }
             button { class: "btn {submit_btn_style}", r#type: "submit", disabled: is_invalid, "Post" }
         }

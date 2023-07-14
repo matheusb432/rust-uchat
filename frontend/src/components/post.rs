@@ -73,17 +73,11 @@ pub fn Header<'a>(cx: Scope<'a>, post: &'a PublicPost) -> Element {
     let handle = &post.by_user.handle;
 
     cx.render(rsx! {
-        div {
-            class: "flex justify-between",
-            onclick: move |_| (),
-            div { "{display_name} "}
-            div {
-                class: "font-light",
-                "{handle}"
-            }
+        div { class: "flex justify-between", onclick: move |_| (),
+            div { "{display_name} " }
+            div { class: "font-light", "{handle}" }
         }
-        div {
-            class: "text-right",
+        div { class: "text-right",
             div { "{post_date}" }
             div { "{post_time}" }
         }
@@ -100,21 +94,14 @@ pub fn PublicPostEntry(cx: Scope, post_id: PostId) -> Element {
     };
 
     cx.render(rsx! {
-        div {
-            key: "{this_post.id.to_string()}",
-            class: "grid grid-cols-[50px_1fr] gap-2 mb-4",
-            div { /*profile image */}
-            div {
-                class: "flex flex-col gap-3",
+        div { key: "{this_post.id.to_string()}", class: "grid grid-cols-[50px_1fr] gap-2 mb-4",
+            div {}
+            div { class: "flex flex-col gap-3",
                 // header
-                Header { post: this_post },
+                Header { post: this_post }
                 // reply to
-                Content {
-                    post: this_post,
-                }
-                ActionBar {
-                    post_id: this_post.id
-                }
+                Content { post: this_post }
+                ActionBar { post_id: this_post.id }
                 hr {}
             }
         }

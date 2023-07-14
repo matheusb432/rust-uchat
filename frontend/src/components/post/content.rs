@@ -3,10 +3,7 @@
 use std::collections::HashSet;
 
 use crate::{prelude::*, toasty};
-use dioxus::{
-    html::figcaption,
-    prelude::{SvgAttributes, *},
-};
+use dioxus::prelude::*;
 use itertools::Itertools;
 use uchat_domain::ids::{PollChoiceId, PostId};
 use uchat_endpoint::post::types::{
@@ -19,22 +16,19 @@ pub fn Image<'a>(cx: Scope<'a>, post_id: PostId, content: &'a EndpointImage) -> 
     let url = if let ImageKind::Url(url) = &content.kind {
         url
     } else {
-        return cx.render(rsx! { "image not found" });
+        return cx.render(rsx! {"image not found"});
     };
 
-    let caption_el = content
-        .caption
-        .as_ref()
-        .map(|caption| rsx! { figcaption { em { "{caption.as_ref()}" }} });
+    let caption_el = content.caption.as_ref().map(|caption| {
+        rsx! {
+            figcaption { em { "{caption.as_ref()}" } }
+        }
+    });
 
     cx.render(rsx! {
-        figure {
-            class: "flex flex-col gap-2",
+        figure { class: "flex flex-col gap-2",
             caption_el,
-            img {
-                class: "w-full object-contain max-h-[80vh]",
-                src: "{url}",
-            }
+            img { class: "w-full object-contain max-h-[80vh]", src: "{url}" }
         }
     })
 }
@@ -42,18 +36,11 @@ pub fn Image<'a>(cx: Scope<'a>, post_id: PostId, content: &'a EndpointImage) -> 
 #[inline_props]
 pub fn Chat<'a>(cx: Scope<'a>, post_id: PostId, content: &'a EndpointChat) -> Element {
     let headline_el = content.headline.as_ref().map(|headline| {
-        rsx! {
-            div {
-                class: "font-bold",
-                "{headline.as_ref()}"
-            }
-        }
+        rsx! { div { class: "font-bold", "{headline.as_ref()}" } }
     });
 
     cx.render(rsx! {
-        div {
-            headline_el
-        }
+        div { headline_el }
     })
 }
 
@@ -118,32 +105,20 @@ pub fn Poll<'a>(cx: Scope<'a>, post_id: PostId, content: &'a EndpointPoll) -> El
                 onclick: move |_| vote_onclick(*post_id, choice.id),
                 div {
                     class: "absolute left-0 {bg_color} h-full rounded z-[-1]",
-                    style: "width: {percent}",
+                    style: "width: {percent}"
                 }
-                div {
-                    class: "{foreground_styles}",
-                    "{percent}"
-                },
-                div {
-                    class: "{foreground_styles}",
-                    "{choice.description.as_ref()}"
-                }
+                div { class: "{foreground_styles}", "{percent}" }
+                div { class: "{foreground_styles}", "{choice.description.as_ref()}" }
             }
         }
     });
 
-    let headline_el = rsx! {
-        figcaption {
-            "{content.headline.as_ref()}"
-        }
-    };
+    let headline_el = rsx! { figcaption { "{content.headline.as_ref()}" } };
 
     cx.render(rsx! {
         div {
             headline_el,
-            ul {
-                choices_el.into_iter()
-            }
+            ul { choices_el.into_iter() }
         }
     })
 }

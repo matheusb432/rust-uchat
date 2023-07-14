@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::{fetch_json, prelude::*, ret_if, toasty};
+use crate::{fetch_json, page::new_post_app_bar::NewPostAppBar, prelude::*, ret_if, toasty};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use uchat_endpoint::post::types::NewPostOptions;
@@ -134,6 +134,7 @@ pub fn NewChat(cx: Scope) -> Element {
     let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
 
     cx.render(rsx! {
+        NewPostAppBar { title: "New Chat".to_owned(), active_page: super::Pages::Chat }
         form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
             MessageInput { page_state: page_state.clone() }
             HeadlineInput { page_state: page_state.clone() }

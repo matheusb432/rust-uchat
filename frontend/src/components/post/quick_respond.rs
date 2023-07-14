@@ -19,19 +19,15 @@ pub fn MessageInput<'a>(
     let wrong_len = maybe_class!("err-text-color", !can_submit(message));
 
     cx.render(rsx! {
-        div {
-            class: "flex relative",
+        div { class: "flex relative",
             textarea {
                 class: "input-field",
                 id: "message",
                 rows: 3,
                 value: "{message}",
-                oninput: move |ev| on_input.call(ev),
+                oninput: move |ev| on_input.call(ev)
             }
-            div {
-                class: "text-right {wrong_len} absolute bottom-1 right-1",
-                "{message.len()}/{max_chars}"
-            }
+            div { class: "text-right {wrong_len} absolute bottom-1 right-1", "{message.len()}/{max_chars}" }
         }
     })
 }
@@ -77,24 +73,14 @@ pub fn QuickRespond(cx: Scope, post_id: PostId, opened: UseState<bool>) -> Eleme
     let btn_style = maybe_class!("btn-disabled", !can_submit(message.get()));
 
     cx.render(rsx! {
-        form {
-            onsubmit: form_onsubmit,
-            prevent_default: "onsubmit",
+        form { onsubmit: form_onsubmit, prevent_default: "onsubmit",
             MessageInput {
                 message: message,
                 on_input: move |ev: FormEvent| {
                     message.set(ev.value.clone());
                 }
             }
-            div {
-                class: "w-full flex justify-end",
-                button {
-                    class: "mt-2 btn {btn_style}",
-                    r#type: "submit",
-                    disabled: !can_submit(message.get()),
-                    "Respond"
-                }
-            }
+            div { class: "w-full flex justify-end", button { class: "mt-2 btn {btn_style}", r#type: "submit", disabled: !can_submit(message.get()), "Respond" } }
         }
     })
 }

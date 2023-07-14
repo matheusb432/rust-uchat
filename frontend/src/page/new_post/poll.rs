@@ -2,7 +2,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::{fetch_json, prelude::*, ret_if, toasty};
+use crate::{fetch_json, page::new_post_app_bar::NewPostAppBar, prelude::*, ret_if, toasty};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use uchat_domain::{
@@ -105,22 +105,17 @@ pub fn PollChoices(cx: Scope, page_state: UseRef<PageState>) -> Element {
         );
         // TODO refactor to remove duplication
         rsx! {
-            li {
-                key: "{key}",
-                div {
-                    class: "grid grid-cols-[1fr_3rem_3rem] w-full gap-2 items-center h-8",
+            li { key: "{key}",
+                div { class: "grid grid-cols-[1fr_3rem_3rem] w-full gap-2 items-center h-8",
                     input {
                         class: "input-field",
                         placeholder: "Choice Description",
-                        oninput: move |ev|  {
+                        oninput: move |ev| {
                             page_state.with_mut(|state| state.replace_choice(key, &ev.data.value));
                         },
-                        value: "{choice}",
+                        value: "{choice}"
                     }
-                    div {
-                        class: "text-right {wrong_len}",
-                        "{choice.len()}/{max_chars}"
-                    }
+                    div { class: "text-right {wrong_len}", "{choice.len()}/{max_chars}" }
                     button {
                         class: "btn p-0 h-full bg-red-700",
                         prevent_default: "onclick",
@@ -135,21 +130,14 @@ pub fn PollChoices(cx: Scope, page_state: UseRef<PageState>) -> Element {
     }).collect::<Vec<LazyNodes>>();
 
     cx.render(rsx! {
-        div {
-            class: "flex flex-col gap-2",
-            "Poll Choices",
-            ol {
-                class: "list-decimal ml-4 flex flex-col gap-2",
-                choices.into_iter()
-            }
-            div {
-                class: "flex flex-row justify-end",
+        div { class: "flex flex-col gap-2",
+            "Poll Choices"
+            ol { class: "list-decimal ml-4 flex flex-col gap-2", choices.into_iter() }
+            div { class: "flex flex-row justify-end",
                 button {
                     class: "btn w-1/2",
                     prevent_default: "onclick",
-                    onclick: move |_| {
-                        page_state.with_mut(|state| state.push_choice(""))
-                    },
+                    onclick: move |_| { page_state.with_mut(|state| state.push_choice("")) },
                     "+"
                 }
             }
@@ -214,10 +202,11 @@ pub fn NewPoll(cx: Scope) -> Element {
     let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
 
     cx.render(rsx! {
+        NewPostAppBar { title: "New Poll".to_owned(), active_page: super::Pages::Poll }
         form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
-        HeadlineInput { page_state: page_state.clone() }
-        PollChoices { page_state: page_state.clone() }
-        button { class: "btn {submit_btn_style}", r#type: "submit", disabled: is_invalid, "Post" }
+            HeadlineInput { page_state: page_state.clone() }
+            PollChoices { page_state: page_state.clone() }
+            button { class: "btn {submit_btn_style}", r#type: "submit", disabled: is_invalid, "Post" }
         }
     })
 }

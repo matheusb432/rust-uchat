@@ -25,9 +25,7 @@ pub fn NewPostPopup(cx: Scope, hide: UseState<bool>) -> Element {
                 img { class: "invert", src: "/static/icons/icon-image.svg" }
                 "Image"
             }
-            div {
-                class: BUTTON_CLASS,
-                onclick: move |_| nav_to(page::POST_NEW_CHAT),
+            div { class: BUTTON_CLASS, onclick: move |_| nav_to(page::POST_NEW_CHAT),
                 img { class: "invert", src: "/static/icons/icon-messages.svg" }
                 "Chat"
             }
@@ -66,12 +64,20 @@ pub fn Navbar(cx: Scope) -> Element {
     cx.render(rsx! {
         nav { class: "max-w-[var(--content-max-width)] h-[var(--navbar-height)] fixed bottom-0 left-0 right-0 mx-auto border-t navbar-bg-color navbar-border-color",
             div { class: "grid grid-cols-3 justify-around w-full h-full items-center shadow-inner",
-                NavButton { img: "/static/icons/icon-home.svg", label: "Home", onclick: |_| {
-                    router.navigate_to(page::HOME);
-                } }
-                NavButton { img: "/static/icons/icon-trending.svg", label: "Trending", onclick: |_| {
-                    router.navigate_to(page::POSTS_TRENDING);
-                } }
+                NavButton {
+                    img: "/static/icons/icon-home.svg",
+                    label: "Home",
+                    onclick: |_| {
+                        router.navigate_to(page::HOME);
+                    }
+                }
+                NavButton {
+                    img: "/static/icons/icon-trending.svg",
+                    label: "Trending",
+                    onclick: |_| {
+                        router.navigate_to(page::POSTS_TRENDING);
+                    }
+                }
                 NavButton {
                     img: "/static/icons/icon-new-post.svg",
                     label: "Post",
