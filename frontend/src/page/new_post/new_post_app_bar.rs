@@ -1,15 +1,15 @@
 #![allow(non_snake_case)]
 
-use super::Pages;
+use super::NewPostPages;
 use crate::prelude::*;
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn NewPostAppBar(cx: Scope, title: String, active_page: Pages) -> Element {
+pub fn NewPostAppBar(cx: Scope, title: String, active_page: NewPostPages) -> Element {
     let router = use_router(cx);
-    let is_chat = *active_page == Pages::Chat;
-    let is_image = *active_page == Pages::Image;
-    let is_poll = *active_page == Pages::Poll;
+    let is_chat = *active_page == NewPostPages::Chat;
+    let is_image = *active_page == NewPostPages::Image;
+    let is_poll = *active_page == NewPostPages::Poll;
 
     cx.render(rsx! {
         AppBar { title: "{title}",

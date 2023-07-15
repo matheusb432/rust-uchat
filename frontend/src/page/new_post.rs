@@ -8,7 +8,7 @@ pub use image::NewImage;
 pub use poll::NewPoll;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub enum Pages {
+pub enum NewPostPages {
     Chat,
     Image,
     Poll,

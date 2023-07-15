@@ -202,7 +202,7 @@ pub fn NewPoll(cx: Scope) -> Element {
     let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
 
     cx.render(rsx! {
-        NewPostAppBar { title: "New Poll".to_owned(), active_page: super::Pages::Poll }
+        NewPostAppBar { title: "New Poll".to_owned(), active_page: super::NewPostPages::Poll }
         form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
             HeadlineInput { page_state: page_state.clone() }
             PollChoices { page_state: page_state.clone() }

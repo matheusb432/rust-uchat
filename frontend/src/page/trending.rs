@@ -30,16 +30,7 @@ pub fn Trending(cx: Scope) -> Element {
         })
     };
 
-    let trending_posts = post_manager
-        .read()
-        .posts
-        .iter()
-        .map(|(&id, _)| {
-            rsx! {
-                div { PublicPostEntry { post_id: id } }
-            }
-        })
-        .collect::<Vec<LazyNodes>>();
+    let posts_el = post_manager.read().to_public_posts();
 
-    cx.render(rsx! {trending_posts.into_iter()})
+    cx.render(rsx! { posts_el.into_iter() })
 }

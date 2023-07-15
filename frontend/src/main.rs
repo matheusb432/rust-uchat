@@ -36,9 +36,10 @@ mod prelude {
     pub use crate::page;
 
     pub use crate::util::api_client::fetch_json;
-    pub use crate::util::{async_handler, maybe_class, ret_if, sync_handler, ApiClient};
+    pub use crate::util::{async_handler, maybe_class, ret_if, sync_handler, toasty, ApiClient};
 
     pub use crate::components::app_bar::{self, AppBar, AppBarImgButton};
+    pub use crate::components::post::PublicPostEntry;
     pub use crate::components::toaster::use_toaster;
 
     pub use dioxus_router::{use_route, use_router};

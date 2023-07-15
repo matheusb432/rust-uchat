@@ -168,7 +168,7 @@ pub fn NewImage(cx: Scope) -> Element {
     let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
 
     cx.render(rsx! {
-        NewPostAppBar { title: "New Image".to_owned(), active_page: super::Pages::Image }
+        NewPostAppBar { title: "New Image".to_owned(), active_page: super::NewPostPages::Image }
         form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
             ImageInput { page_state: page_state.clone() }
             ImagePreview { page_state: page_state.clone() }
