@@ -396,3 +396,59 @@ pub fn get_poll_results(
         })
     }
 }
+
+pub fn get_home_posts(conn: &mut PgConnection, user_id: UserId) -> Result<Vec<Post>, DieselError> {
+    use crate::schema::{boosts, followers, posts};
+    let uid = user_id;
+    let on_schedule = posts::time_posted.lt(Utc::now());
+    let public_only = posts::direct_message_to.is_null();
+    let by_time_posted = posts::time_posted.desc();
+    let limit = 30;
+
+    followers::table
+        .filter(followers::user_id.eq(uid))
+        .inner_join(posts::table.on(followers::follows.eq(posts::user_id)))
+        .filter(on_schedule)
+        .filter(public_only)
+        .select(Post::as_select())
+        .order(by_time_posted)
+        .limit(limit)
+        .union(
+            followers::table
+                .filter(followers::user_id.eq(uid))
+                .inner_join(boosts::table.on(boosts::user_id.eq(followers::follows)))
+                .inner_join(posts::table.on(posts::user_id.eq(boosts::post_id)))
+                .filter(on_schedule)
+                .filter(public_only)
+                .select(Post::as_select())
+                .order(by_time_posted)
+                .limit(limit),
+        )
+        .get_results(conn)
+}
+
+pub fn get_liked_posts(conn: &mut PgConnection, user_id: UserId) -> Result<Vec<Post>, DieselError> {
+    use crate::schema::{posts, reactions};
+    reactions::table
+        .inner_join(posts::table)
+        .filter(reactions::user_id.eq(user_id))
+        .filter(reactions::like_status.eq(1))
+        .filter(posts::direct_message_to.is_null())
+        .select(Post::as_select())
+        .limit(30)
+        .get_results(conn)
+}
+
+pub fn get_bookmarked_posts(
+    conn: &mut PgConnection,
+    user_id: UserId,
+) -> Result<Vec<Post>, DieselError> {
+    use crate::schema::{bookmarks, posts};
+    bookmarks::table
+        .inner_join(posts::table)
+        .filter(bookmarks::user_id.eq(user_id))
+        .filter(posts::direct_message_to.is_null())
+        .select(Post::as_select())
+        .limit(30)
+        .get_results(conn)
+}

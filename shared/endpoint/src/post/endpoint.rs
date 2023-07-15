@@ -69,3 +69,27 @@ pub struct ReactOk {
     pub likes: i64,
     pub dislikes: i64,
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct HomePosts;
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct HomePostsOk {
+    pub posts: Vec<PublicPost>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct LikedPosts;
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct LikedPostsOk {
+    pub posts: Vec<PublicPost>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct BookmarkedPosts;
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct BookmarkedPostsOk {
+    pub posts: Vec<PublicPost>,
+}

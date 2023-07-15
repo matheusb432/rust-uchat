@@ -18,7 +18,10 @@ use tower_http::{
 use tracing::Level;
 
 use uchat_endpoint::{
-    post::endpoint::{Bookmark, Boost, NewPost, React, TrendingPosts, Vote},
+    post::endpoint::{
+        Bookmark, BookmarkedPosts, Boost, HomePosts, LikedPosts, NewPost, React, TrendingPosts,
+        Vote,
+    },
     user::endpoint::{CreateUser, Login},
     Endpoint,
 };
@@ -41,6 +44,9 @@ pub fn new_router(state: AppState) -> Router {
     let authorized_routes = Router::new()
         .route(NewPost::URL, post(with_handler::<NewPost>))
         .route(TrendingPosts::URL, post(with_handler::<TrendingPosts>))
+        .route(HomePosts::URL, post(with_handler::<HomePosts>))
+        .route(LikedPosts::URL, post(with_handler::<LikedPosts>))
+        .route(BookmarkedPosts::URL, post(with_handler::<BookmarkedPosts>))
         .route(Bookmark::URL, post(with_handler::<Bookmark>))
         .route(Boost::URL, post(with_handler::<Boost>))
         .route(Vote::URL, post(with_handler::<Vote>))
