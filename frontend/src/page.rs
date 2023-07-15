@@ -4,7 +4,7 @@ pub mod new_post;
 pub mod register;
 pub mod trending;
 
-pub use home::Home;
+pub use home::{Bookmarked, Home, Liked};
 pub use login::Login;
 pub use new_post::*;
 pub use register::Register;

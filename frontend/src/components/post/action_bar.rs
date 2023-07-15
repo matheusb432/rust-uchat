@@ -189,7 +189,9 @@ pub fn ActionBar(cx: Scope, post_id: PostId) -> Element {
     let quick_respond_opened = use_state(cx, || false).clone();
 
     let this_post = post_manager.read();
-    let this_post = this_post.get(post_id).unwrap();
+    let Some(this_post) = this_post.get(post_id) else {
+        return None;
+    };
     let this_post_id = this_post.id;
 
     cx.render(rsx! {

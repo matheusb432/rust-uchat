@@ -24,6 +24,8 @@ pub fn App(cx: Scope) -> Element {
         Router { 
             main { class: "max-w-[var(--content-max-width)] min-w-[var(--content-min-width)] mt-[var(--appbar-height)] mb-[var(--navbar-height)] mx-auto p-4",
                 Route { to: page::HOME, page::Home {} }
+                Route { to: page::HOME_LIKED, page::Liked {} }
+                Route { to: page::HOME_BOOKMARKED, page::Bookmarked {} }
                 Route { to: page::ACCOUNT_REGISTER, page::Register {} }
                 Route { to: page::ACCOUNT_LOGIN, page::Login {} }
                 Route { to: page::POST_NEW_CHAT, page::NewChat {} }
