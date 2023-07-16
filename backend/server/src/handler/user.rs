@@ -1,17 +1,30 @@
-use crate::prelude::*;
+use crate::{extractor::UserSession, prelude::*};
 use axum::{async_trait, Json};
 use chrono::{Duration, Utc};
 use tracing::info;
-use uchat_domain::{ids::UserId, user::DisplayName};
-use uchat_endpoint::user::{
-    endpoint::{CreateUser, CreateUserOk, Login, LoginOk},
-    types::PublicUserProfile,
+use uchat_domain::{
+    ids::{ImageId, UserId},
+    user::DisplayName,
 };
-use uchat_query::{session::Session, user::User};
+use uchat_endpoint::{
+    user::{
+        endpoint::{
+            CreateUser, CreateUserOk, GetMyProfile, GetMyProfileOk, Login, LoginOk, UpdateProfile,
+            UpdateProfileOk,
+        },
+        types::PublicUserProfile,
+    },
+    Update,
+};
+use uchat_query::{
+    session::Session,
+    user::{UpdateProfileParams, User},
+};
+use url::Url;
 
 use crate::{error::ApiResult, extractor::DbConnection, AppState};
 
-use super::PublicApiRequest;
+use super::{save_image, AuthorizedApiRequest, PublicApiRequest};
 
 pub struct SessionSignature(String);
 
@@ -26,6 +39,15 @@ pub fn to_public(user: User) -> ApiResult<PublicUserProfile> {
         created_at: user.created_at,
         am_following: false,
     })
+}
+
+fn profile_id_to_url(id: &str) -> Url {
+    use uchat_endpoint::app_url::{self, user_content};
+    app_url::domain_and(user_content::ROOT)
+        .join(user_content::IMAGES)
+        .expect("Failed to build root images url, make sure an API_URL environment variable is set")
+        .join(id)
+        .unwrap()
 }
 
 fn new_session(
@@ -108,6 +130,79 @@ impl PublicApiRequest for Login {
                 email: user.email,
                 profile_image: None,
                 user_id: user.id,
+            }),
+        ))
+    }
+}
+
+#[async_trait]
+impl AuthorizedApiRequest for GetMyProfile {
+    type Response = (StatusCode, Json<GetMyProfileOk>);
+
+    async fn process_request(
+        self,
+        DbConnection(mut conn): DbConnection,
+        session: UserSession,
+        _state: AppState,
+    ) -> ApiResult<Self::Response> {
+        let user = uchat_query::user::get(&mut conn, session.user_id)?;
+
+        let profile_image_url = user.profile_image.as_ref().map(|id| profile_id_to_url(id));
+
+        Ok((
+            StatusCode::OK,
+            Json(GetMyProfileOk {
+                display_name: user.display_name,
+                email: user.email,
+                profile_image: profile_image_url,
+                user_id: user.id,
+            }),
+        ))
+    }
+}
+
+#[async_trait]
+impl AuthorizedApiRequest for UpdateProfile {
+    type Response = (StatusCode, Json<UpdateProfileOk>);
+
+    async fn process_request(
+        self,
+        DbConnection(mut conn): DbConnection,
+        session: UserSession,
+        _state: AppState,
+    ) -> ApiResult<Self::Response> {
+        let password = {
+            if let Update::Change(ref password) = self.password {
+                Update::Change(uchat_crypto::hash_password(password)?)
+            } else {
+                Update::NoChange
+            }
+        };
+
+        if let Update::Change(ref img) = self.profile_image {
+            let id = ImageId::new();
+            save_image(id, img).await?;
+        }
+
+        let query_params = UpdateProfileParams {
+            id: session.user_id,
+            display_name: self.display_name,
+            email: self.email,
+            password_hash: password,
+            profile_image: self.profile_image.clone(),
+        };
+
+        uchat_query::user::update_profile(&mut conn, query_params)?;
+
+        let profile_image_url = {
+            let user = uchat_query::user::get(&mut conn, session.user_id)?;
+            user.profile_image.as_ref().map(|id| profile_id_to_url(id))
+        };
+
+        Ok((
+            StatusCode::OK,
+            Json(UpdateProfileOk {
+                profile_image: profile_image_url,
             }),
         ))
     }
