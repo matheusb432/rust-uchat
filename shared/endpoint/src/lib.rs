@@ -81,7 +81,7 @@ pub mod app_url {
 // public routes
 route!("/account/create" => user::endpoint::CreateUser);
 route!("/account/login" => user::endpoint::Login);
-// route!("/profile/view" => user::endpoint::ViewProfile);
+route!("/profile/view" => user::endpoint::ViewProfile);
 
 // authorized routes
 route!("/post/new" => post::endpoint::NewPost);

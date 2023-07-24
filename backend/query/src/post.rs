@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use uchat_domain::ids::{PollChoiceId, PostId, UserId};
 use uchat_endpoint::post::types::VoteCast;
 
-use crate::{schema, DieselError};
+use crate::{schema, user, DieselError};
 
 #[derive(Clone, Debug, DieselNewType, Serialize, Deserialize)]
 pub struct Content(pub serde_json::Value);
@@ -73,6 +73,20 @@ pub fn get(conn: &mut PgConnection, post_id: PostId) -> Result<Post, DieselError
     use crate::schema::posts::dsl::*;
 
     posts.filter(id.eq(post_id.as_uuid())).get_result(conn)
+}
+
+pub fn get_profile_posts(
+    conn: &mut PgConnection,
+    user_id: UserId,
+) -> Result<Vec<Post>, DieselError> {
+    use crate::schema::posts;
+    posts::table
+        .filter(posts::user_id.eq(user_id))
+        .filter(posts::time_posted.lt(Utc::now()))
+        .filter(posts::direct_message_to.is_null())
+        .order(posts::time_posted.desc())
+        .limit(30)
+        .get_results(conn)
 }
 
 pub fn get_trending(conn: &mut PgConnection) -> Result<Vec<Post>, DieselError> {

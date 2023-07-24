@@ -123,6 +123,27 @@ pub fn to_public(
     }
 }
 
+// TODO refactor in other methods
+pub fn many_to_public(
+    conn: &mut AsyncConnection,
+    posts: Vec<Post>,
+    session: Option<&UserSession>,
+) -> Vec<PublicPost> {
+    posts
+        .into_iter()
+        .filter_map(|p| {
+            let post_id = p.id;
+            match to_public(conn, p, session) {
+                Ok(res) => Some(res),
+                Err(e) => {
+                    tracing::error!(err = %e.err, post_id = ?post_id, "post contains invalid data");
+                    None
+                }
+            }
+        })
+        .collect::<Vec<PublicPost>>()
+}
+
 #[async_trait]
 impl AuthorizedApiRequest for NewPost {
     type Response = (StatusCode, Json<NewPostOk>);

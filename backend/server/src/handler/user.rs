@@ -10,7 +10,7 @@ use uchat_endpoint::{
     user::{
         endpoint::{
             CreateUser, CreateUserOk, GetMyProfile, GetMyProfileOk, Login, LoginOk, UpdateProfile,
-            UpdateProfileOk,
+            UpdateProfileOk, ViewProfile, ViewProfileOk,
         },
         types::PublicUserProfile,
     },
@@ -130,6 +130,40 @@ impl PublicApiRequest for Login {
                 email: user.email,
                 profile_image: None,
                 user_id: user.id,
+            }),
+        ))
+    }
+}
+
+#[async_trait]
+impl PublicApiRequest for ViewProfile {
+    type Response = (StatusCode, Json<ViewProfileOk>);
+
+    async fn process_request(
+        self,
+        DbConnection(mut conn): DbConnection,
+        _state: AppState,
+    ) -> ApiResult<Self::Response> {
+        let user_id = self.user_id;
+        // TODO create optimized query?
+        let profile_user = uchat_query::user::get_profile(&mut conn, user_id)?;
+        let profile_posts = {
+            let posts = uchat_query::post::get_profile_posts(&mut conn, user_id)?;
+            super::post::many_to_public(&mut conn, posts, None)
+        };
+
+        Ok((
+            StatusCode::OK,
+            Json(ViewProfileOk {
+                user_id: profile_user.id,
+                display_name: profile_user.display_name,
+                handle: profile_user.handle,
+                email: profile_user.email,
+                profile_image: profile_user
+                    .profile_image
+                    .as_ref()
+                    .map(|id| profile_id_to_url(id)),
+                posts: profile_posts,
             }),
         ))
     }

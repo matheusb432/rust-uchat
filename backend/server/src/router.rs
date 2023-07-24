@@ -22,7 +22,7 @@ use uchat_endpoint::{
         Bookmark, BookmarkedPosts, Boost, HomePosts, LikedPosts, NewPost, React, TrendingPosts,
         Vote,
     },
-    user::endpoint::{CreateUser, GetMyProfile, Login, UpdateProfile},
+    user::endpoint::{CreateUser, GetMyProfile, Login, UpdateProfile, ViewProfile},
     Endpoint,
 };
 
@@ -39,7 +39,8 @@ pub fn new_router(state: AppState) -> Router {
         // NOTE Dynamic route for images
         .route(&format!("/{img_route}:id"), get(handler::load_image))
         .route(CreateUser::URL, post(with_public_handler::<CreateUser>))
-        .route(Login::URL, post(with_public_handler::<Login>));
+        .route(Login::URL, post(with_public_handler::<Login>))
+        .route(ViewProfile::URL, post(with_public_handler::<ViewProfile>));
 
     let authorized_routes = Router::new()
         .route(NewPost::URL, post(with_handler::<NewPost>))

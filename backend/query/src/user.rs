@@ -6,7 +6,7 @@ use uchat_domain::ids::UserId;
 use uchat_domain::Username;
 use uchat_endpoint::Update;
 
-use crate::{DieselError, QueryError};
+use crate::{schema, DieselError, QueryError};
 
 pub fn new<T: AsRef<str>>(
     conn: &mut PgConnection,
@@ -56,6 +56,26 @@ pub fn get(conn: &mut PgConnection, user_id: UserId) -> Result<User, DieselError
     use crate::schema::users::dsl::*;
 
     users.filter(id.eq(user_id)).get_result(conn)
+}
+
+#[derive(Debug, Queryable, Selectable)]
+#[diesel(table_name = schema::users)]
+pub struct Profile {
+    pub id: UserId,
+    pub display_name: Option<String>,
+    pub handle: String,
+    pub email: Option<String>,
+    pub profile_image: Option<String>,
+}
+
+// ? More optimized query that only gets necessary data
+pub fn get_profile(conn: &mut PgConnection, user_id: UserId) -> Result<Profile, DieselError> {
+    use crate::schema::users::dsl::*;
+
+    users
+        .filter(id.eq(user_id))
+        .select(Profile::as_select())
+        .get_result(conn)
 }
 
 pub fn find(conn: &mut PgConnection, username: &Username) -> Result<User, DieselError> {
