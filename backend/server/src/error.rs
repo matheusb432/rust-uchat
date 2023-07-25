@@ -39,6 +39,7 @@ impl IntoResponse for ApiErr {
         if let Some(code) = self.code {
             return err_response(code, format!("{}", self.err));
         }
+        tracing::error!("{}", self.err);
         err_response(StatusCode::INTERNAL_SERVER_ERROR, "server error")
     }
 }

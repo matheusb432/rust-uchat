@@ -78,6 +78,24 @@ pub fn get_profile(conn: &mut PgConnection, user_id: UserId) -> Result<Profile, 
         .get_result(conn)
 }
 
+pub fn is_following(
+    conn: &mut PgConnection,
+    user_id: UserId,
+    follows: UserId,
+) -> Result<bool, DieselError> {
+    use crate::schema::followers;
+    use diesel::dsl::count;
+
+    followers::table
+        .filter(followers::user_id.eq(user_id))
+        .filter(followers::follows.eq(follows))
+        .select(count(followers::user_id))
+        .get_result(conn)
+        .optional()
+        // TODO refator to common utils?
+        .map(super::post::is_one)
+}
+
 pub fn find(conn: &mut PgConnection, username: &Username) -> Result<User, DieselError> {
     use crate::schema::users::dsl::*;
 

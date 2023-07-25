@@ -9,8 +9,8 @@ use uchat_domain::{
 use uchat_endpoint::{
     user::{
         endpoint::{
-            CreateUser, CreateUserOk, GetMyProfile, GetMyProfileOk, Login, LoginOk, UpdateProfile,
-            UpdateProfileOk, ViewProfile, ViewProfileOk,
+            CreateUser, CreateUserOk, GetMyProfile, GetMyProfileOk, IsFollowing, IsFollowingOk,
+            Login, LoginOk, UpdateProfile, UpdateProfileOk, ViewProfile, ViewProfileOk,
         },
         types::PublicUserProfile,
     },
@@ -239,5 +239,23 @@ impl AuthorizedApiRequest for UpdateProfile {
                 profile_image: profile_image_url,
             }),
         ))
+    }
+}
+
+// TODO test & add follow/unfollow endpoint
+#[async_trait]
+impl AuthorizedApiRequest for IsFollowing {
+    type Response = (StatusCode, Json<IsFollowingOk>);
+
+    async fn process_request(
+        self,
+        DbConnection(mut conn): DbConnection,
+        session: UserSession,
+        _state: AppState,
+    ) -> ApiResult<Self::Response> {
+        let is_following =
+            uchat_query::user::is_following(&mut conn, session.user_id, self.follows)?;
+
+        Ok((StatusCode::OK, Json(IsFollowingOk { is_following })))
     }
 }

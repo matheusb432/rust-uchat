@@ -287,7 +287,7 @@ pub fn boost(
     }
 }
 
-fn is_one(n: Option<i64>) -> bool {
+pub(crate) fn is_one(n: Option<i64>) -> bool {
     match n {
         Some(n) => n == 1,
         None => false,

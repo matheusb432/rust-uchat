@@ -68,8 +68,6 @@ pub struct ViewProfile {
     pub user_id: UserId,
 }
 
-// TODO add user posts on ok
-// TODO add follows
 #[derive(Clone, Deserialize, Serialize)]
 pub struct ViewProfileOk {
     pub user_id: UserId,
@@ -78,4 +76,14 @@ pub struct ViewProfileOk {
     pub email: Option<String>,
     pub profile_image: Option<Url>,
     pub posts: Vec<PublicPost>,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct IsFollowing {
+    pub follows: UserId,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct IsFollowingOk {
+    pub is_following: bool,
 }
