@@ -1,13 +1,11 @@
 #![allow(non_snake_case)]
 
 use dioxus::prelude::*;
+use dioxus_router::Link;
 use uchat_domain::{self, UserFacingError};
 
 use crate::{
-    components::{
-        keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
-        local_profile,
-    },
+    components::keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
     fetch_json,
     prelude::*,
     toasty,
@@ -18,6 +16,7 @@ pub struct PageState {
     username: UseState<String>,
     password: UseState<String>,
     form_errors: KeyedNotifications,
+    server_errors: KeyedNotifications,
 }
 
 impl PageState {
@@ -26,6 +25,7 @@ impl PageState {
             username: use_state(cx, String::new).clone(),
             password: use_state(cx, String::new).clone(),
             form_errors: KeyedNotifications::default(),
+            server_errors: KeyedNotifications::default(),
         }
     }
 
@@ -81,6 +81,16 @@ pub fn PasswordInput<'a>(
     })
 }
 
+pub fn RegisterLink(cx: Scope) -> Element {
+    cx.render(rsx! {
+        Link {
+            class: "link text-center",
+            to: page::ACCOUNT_REGISTER,
+            "Create Account"
+        }
+    })
+}
+
 pub fn Login(cx: Scope) -> Element {
     let api_client = ApiClient::global();
     let page_state = PageState::new(cx);
@@ -128,6 +138,9 @@ pub fn Login(cx: Scope) -> Element {
                     router.navigate_to(page::HOME);
                 }
                 Err(e) => {
+                    page_state.with_mut(|state| {
+                        state.server_errors.set("login", e.to_string())
+                    });
                     toasty!(toaster => error: format!("Failed to login: {e}"));
                 }
             }
@@ -159,18 +172,24 @@ pub fn Login(cx: Scope) -> Element {
 
     cx.render(rsx! {
         form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: form_onsubmit,
+        KeyedNotificationBox {
+            legend: "Login Errors",
+            notifications: page_state.with(|state| state.server_errors.clone())
+        }
             UsernameInput {
                 state: page_state.with(|state| state.username.clone()),
-                oninput: username_oninput
+                    oninput: username_oninput
             }
             PasswordInput {
                 state: page_state.with(|state| state.password.clone()),
                 oninput: password_oninput
             }
+            RegisterLink { }
             KeyedNotificationBox {
                 legend: "Form Errors",
                 notifications: page_state.with(|state| state.form_errors.clone())
             }
+            
             button { class: "btn {submit_btn_style}", r#type: "submit", disabled: !page_state.with(|state| state.can_submit()), "Login" }
         }
     })

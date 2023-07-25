@@ -5,7 +5,7 @@ use dioxus_router::{Route, Router};
 use fermi::{use_init_atom_root, AtomRef};
 
 use crate::{
-    components::{post::PostManager, toaster::ToastRoot, toaster::Toaster, Navbar, local_profile::LocalProfile},
+    components::{post::PostManager, toaster::ToastRoot, toaster::Toaster, Navbar, local_profile::LocalProfile, sidebar::Sidebar},
     prelude::*,
 };
 
@@ -13,6 +13,7 @@ use crate::{
 pub static TOASTER: AtomRef<Toaster> = |_| Toaster::default();
 pub static POST_MANAGER: AtomRef<PostManager> = |_| PostManager::default();
 pub static LOCAL_PROFILE: AtomRef<LocalProfile> = |_| LocalProfile::default();
+pub static SIDEBAR: AtomRef<SidebarManager> = |_| SidebarManager::default();
 
 pub fn Init(cx: Scope) -> Element {
     let api_client = ApiClient::global();
@@ -53,6 +54,7 @@ pub fn App(cx: Scope) -> Element {
     cx.render(rsx! {
         Router { 
             Init {}
+            Sidebar {}
             main { class: "max-w-[var(--content-max-width)] min-w-[var(--content-min-width)] mt-[var(--appbar-height)] mb-[var(--navbar-height)] mx-auto p-4",
                 Route { to: page::HOME, page::Home {} }
                 Route { to: page::HOME_LIKED, page::Liked {} }

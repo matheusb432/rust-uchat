@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use dioxus::prelude::*;
+use dioxus_router::Link;
 use uchat_domain::{self, UserFacingError};
 
 use crate::{
@@ -14,6 +15,7 @@ pub struct PageState {
     username: UseState<String>,
     password: UseState<String>,
     form_errors: KeyedNotifications,
+    server_errors: KeyedNotifications,
 }
 
 // NOTE Moving state initialization to a separate struct
@@ -23,6 +25,7 @@ impl PageState {
             username: use_state(cx, String::new).clone(),
             password: use_state(cx, String::new).clone(),
             form_errors: KeyedNotifications::default(),
+            server_errors: KeyedNotifications::default(),
         }
     }
 
@@ -82,6 +85,16 @@ pub fn PasswordInput<'a>(
     })
 }
 
+pub fn LoginLink(cx: Scope) -> Element {
+    cx.render(rsx! {
+        Link {
+            class: "link text-center",
+            to: page::ACCOUNT_LOGIN,
+            "Existing User Login"
+        }
+    })
+}
+
 pub fn Register(cx: Scope) -> Element {
     let api_client = ApiClient::global();
     let page_state = PageState::new(cx);
@@ -123,7 +136,9 @@ pub fn Register(cx: Scope) -> Element {
                     local_profile.write().user_id = Some(res.user_id);
                     router.navigate_to(page::HOME);
                 }
-                Err(_err) => (),
+                Err(e) => {
+                    page_state.with_mut(|state| state.server_errors.set("register", e.to_string()));
+                }
             };
         }
     );
@@ -161,6 +176,10 @@ pub fn Register(cx: Scope) -> Element {
     // ? With the oninput event handler, this effectively creates 2-way databinding on the input
     cx.render(rsx! {
         form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: form_onsubmit,
+        KeyedNotificationBox {
+            legend: "Registration Errors",
+            notifications: page_state.with(|state| state.server_errors.clone())
+        }
             UsernameInput {
                 state: page_state.with(|state| state.username.clone()),
                 oninput: username_oninput
@@ -169,6 +188,7 @@ pub fn Register(cx: Scope) -> Element {
                 state: page_state.with(|state| state.password.clone()),
                 oninput: password_oninput
             }
+            LoginLink { }
             KeyedNotificationBox {
                 legend: "Form Errors",
                 notifications: page_state.with(|state| state.form_errors.clone())

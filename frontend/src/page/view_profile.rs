@@ -3,7 +3,7 @@
 use std::str::FromStr;
 
 use crate::{components::post::use_post_manager, prelude::*};
-use dioxus::prelude::*;
+use dioxus::prelude::{GlobalAttributes, *};
 
 use uchat_domain::ids::UserId;
 use uchat_endpoint::user::types::FollowAction;
@@ -36,6 +36,7 @@ pub fn ViewProfile(cx: Scope) -> Element {
 
     let router = use_router(cx);
     let post_manager = use_post_manager(cx);
+    let local_profile = use_local_profile(cx);
     let profile = use_ref(cx, || None);
     let toaster = use_toaster(cx);
 
@@ -44,6 +45,7 @@ pub fn ViewProfile(cx: Scope) -> Element {
         async move {
             use uchat_endpoint::user::endpoint::{ViewProfile, ViewProfileOk};
 
+            post_manager.write().clear();
             let view_res =
                 fetch_json!(<ViewProfileOk>, api_client, ViewProfile { user_id: user_id });
             match view_res {
@@ -113,14 +115,10 @@ pub fn ViewProfile(cx: Scope) -> Element {
                 .profile_image
                 .map(|url| url.to_string())
                 .unwrap_or_else(|| "".to_string());
-
-            rsx! {
-                section { class: "flex flex-col items-center justify-center gap-3",
-                    div { class: "flex flex-row justify-center", img { class: "profile-portrait-lg", src: "{profile_image}" } }
-                    display_name_el,
-                    span { "Handle: @{p.handle.clone()}" }
-                }
-                section { class: "flex gap-x-6 items-center justify-center mt-6 mb-8",
+            let user_btns = local_profile.read().user_id.map(|id| if id == p.id {
+                rsx! { "" }
+            } else {
+                rsx! {
                     button {
                         class: "btn",
                         prevent_default: "onclick",
@@ -129,6 +127,18 @@ pub fn ViewProfile(cx: Scope) -> Element {
                         "Send Message"
                     }
                     button { class: "btn", prevent_default: "onclick", onclick: follow_onclick, follow_btn_label }
+                }
+            });
+
+            rsx! {
+                section { class: "flex flex-col items-center justify-center gap-3",
+                    div { class: "flex flex-row justify-center", img { class: "profile-portrait-lg", src: "{profile_image}" } }
+                    display_name_el,
+                    span { "Handle: @{p.handle.clone()}" }
+                }
+                section {
+                    class: "flex gap-x-6 items-center justify-center mt-6 mb-8",
+                    user_btns
                 }
             }
         }

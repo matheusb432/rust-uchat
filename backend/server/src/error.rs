@@ -12,6 +12,28 @@ pub struct ApiErr {
     pub err: color_eyre::Report,
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum ServerErr {
+    #[error("Login failed")]
+    Login((StatusCode, String)),
+    #[error("Registration failed")]
+    Registration((StatusCode, String)),
+}
+
+impl ServerErr {
+    pub fn missing_login() -> Self {
+        Self::Login((StatusCode::NOT_FOUND, "Missing login".into()))
+    }
+
+    pub fn wrong_password() -> Self {
+        Self::Login((StatusCode::BAD_REQUEST, "Invalid password".into()))
+    }
+
+    pub fn account_exists() -> Self {
+        Self::Login((StatusCode::CONFLICT, "Account already exists".to_string()))
+    }
+}
+
 impl ApiErr {
     pub fn new<T: Into<String>>(code: StatusCode, err: T) -> Self {
         let msg: String = err.into();
@@ -39,6 +61,15 @@ impl IntoResponse for ApiErr {
         if let Some(code) = self.code {
             return err_response(code, format!("{}", self.err));
         }
+
+        // NOTE downcast_ref tries to convert the error into a reference to the specified type
+        if let Some(server_err) = self.err.downcast_ref::<ServerErr>() {
+            return match server_err {
+                ServerErr::Login((code, msg)) => err_response(*code, msg),
+                ServerErr::Registration((code, msg)) => err_response(*code, msg),
+            };
+        };
+
         tracing::error!("{}", self.err);
         err_response(StatusCode::INTERNAL_SERVER_ERROR, "server error")
     }

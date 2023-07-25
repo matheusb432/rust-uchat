@@ -2,7 +2,6 @@ use crate::{error::ApiErr, prelude::*};
 use axum::{async_trait, Json};
 use chrono::Utc;
 
-use tracing::info;
 use uchat_domain::{ids::ImageId, Username};
 use uchat_endpoint::{
     app_url::{self, user_content},

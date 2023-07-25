@@ -41,6 +41,7 @@ mod prelude {
     pub use crate::components::app_bar::{self, AppBar, AppBarImgButton};
     pub use crate::components::local_profile::{use_local_profile, LocalProfile};
     pub use crate::components::post::PublicPostEntry;
+    pub use crate::components::sidebar::{use_sidebar, SidebarManager};
     pub use crate::components::toaster::use_toaster;
 
     pub use dioxus_router::{use_route, use_router};

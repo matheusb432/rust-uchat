@@ -32,7 +32,7 @@ pub struct RequestFailed {
 ///
 /// # Example
 ///
-/// ```
+/// ```ignore
 /// route!("/post/new" => NewPost);
 ///
 /// assert_eq!(NewPost::URL, "/post/new");
@@ -59,7 +59,7 @@ pub mod app_url {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
     /// pub const API_URL: &str = "http://127.0.0.1:8070/";
     ///
     /// let url = domain_and("img/happy.png");

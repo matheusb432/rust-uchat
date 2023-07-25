@@ -1,5 +1,7 @@
 use diesel::{Connection, PgConnection, RunQueryDsl};
 
+pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
 fn reset_database(connection_url: &str) {
     // connect to "postgres" database
     let (database, postgres_url) = query_helper::change_database_of_url(connection_url, "postgres");

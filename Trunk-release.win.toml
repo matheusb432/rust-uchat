@@ -3,10 +3,11 @@ target = "frontend/index.html"
 dist = "target/dist"
 release = true
 
+
 [[hooks]]
 stage = "build"
-command = "sh"
+command = "C:\\Program Files\\Git\\bin\\sh.exe" # `sh` is in the git installation folder
 command_arguments = [
     "-c",
-    "npx tailwindcss -i frontend/src/tailwind.css -o $TRUNK_STAGING_DIR\\tailwind.css -m -c frontend/tailwind.config.js",
+    "npx tailwindcss -i frontend/src/tailwind.css -o target/dist/.stage/tailwind.css -m -c frontend/tailwind.config.js",
 ]

@@ -1,4 +1,8 @@
-use crate::{extractor::UserSession, prelude::*};
+use crate::{
+    error::{ApiErr, ServerErr},
+    extractor::UserSession,
+    prelude::*,
+};
 use axum::{async_trait, Json};
 use chrono::{Duration, Utc};
 use tracing::info;
@@ -80,7 +84,8 @@ impl PublicApiRequest for CreateUser {
         state: AppState,
     ) -> ApiResult<Self::Response> {
         let password_hash = uchat_crypto::hash_password(&self.password)?;
-        let user_id = uchat_query::user::new(&mut conn, password_hash, &self.username)?;
+        let user_id = uchat_query::user::new(&mut conn, password_hash, &self.username)
+            .map_err(|_| ServerErr::account_exists())?;
 
         info!(username = self.username.as_ref(), "new user created");
 
@@ -112,14 +117,21 @@ impl PublicApiRequest for Login {
             tracing::span!(tracing::Level::INFO, "logging in", user = %self.username.as_ref())
                 .entered();
 
-        let hash = uchat_query::user::get_password_hash(&mut conn, &self.username)?;
-        let hash = uchat_crypto::password::deserialize_hash(&hash)?;
+        // TODO refactor to remove duplication
+        let hash = uchat_query::user::get_password_hash(&mut conn, &self.username)
+            .map_err(|_| ServerErr::wrong_password())?;
+        let hash = uchat_crypto::password::deserialize_hash(&hash)
+            .map_err(|_| ServerErr::wrong_password())?;
 
-        uchat_crypto::verify_password(self.password, &hash)?;
+        uchat_crypto::verify_password(self.password, &hash)
+            .map_err(|_| ServerErr::wrong_password())?;
 
-        let user = uchat_query::user::find(&mut conn, &self.username)?;
+        let user = uchat_query::user::find(&mut conn, &self.username)
+            .map_err(|_| ServerErr::missing_login())?;
 
         let (session, signature, duration) = new_session(&state, &mut conn, user.id)?;
+
+        let profile_image_url = user.profile_image.as_ref().map(|id| profile_id_to_url(id));
 
         Ok((
             StatusCode::OK,
@@ -129,7 +141,7 @@ impl PublicApiRequest for Login {
                 session_signature: signature.0,
                 display_name: user.display_name,
                 email: user.email,
-                profile_image: None,
+                profile_image: profile_image_url,
                 user_id: user.id,
             }),
         ))
@@ -180,17 +192,20 @@ impl AuthorizedApiRequest for UpdateProfile {
             }
         };
 
-        if let Update::Change(ref img) = self.profile_image {
+        let profile_image = if let Update::Change(ref img) = self.profile_image {
             let id = ImageId::new();
             save_image(id, img).await?;
-        }
+            Update::Change(id.to_string())
+        } else {
+            self.profile_image
+        };
 
         let query_params = UpdateProfileParams {
             id: session.user_id,
             display_name: self.display_name,
             email: self.email,
             password_hash: password,
-            profile_image: self.profile_image.clone(),
+            profile_image,
         };
 
         uchat_query::user::update_profile(&mut conn, query_params)?;
@@ -236,6 +251,10 @@ impl AuthorizedApiRequest for FollowUser {
         session: UserSession,
         _state: AppState,
     ) -> ApiResult<Self::Response> {
+        if self.follows == session.user_id {
+            return Err(ApiErr::new(StatusCode::BAD_REQUEST, "cannot follow self"));
+        }
+
         match self.action {
             FollowAction::Follow => {
                 uchat_query::user::follow(&mut conn, session.user_id, self.follows)?;
@@ -248,11 +267,7 @@ impl AuthorizedApiRequest for FollowUser {
         Ok((
             StatusCode::OK,
             Json(FollowUserOk {
-                is_following: if self.action == FollowAction::Follow {
-                    true
-                } else {
-                    false
-                },
+                is_following: self.action == FollowAction::Follow,
             }),
         ))
     }
@@ -269,7 +284,6 @@ impl AuthorizedApiRequest for ViewProfile {
         _state: AppState,
     ) -> ApiResult<Self::Response> {
         let user_id = self.user_id;
-        // TODO create optimized query?
         let profile_user = uchat_query::user::get_profile(&mut conn, user_id)?;
         let profile_posts = {
             let posts = uchat_query::post::get_public_posts(&mut conn, user_id)?;
