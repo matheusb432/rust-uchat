@@ -25,10 +25,7 @@ pub fn Bookmarked(cx: Scope) -> Element {
     let posts_el = post_manager.read().to_public_posts();
 
     cx.render(rsx! {
-        HomeAppBar {
-            title: "Bookmarked Posts".to_owned(),
-            active_page: HomePages::Bookmarked
-        }
+        HomeAppBar { title: "Bookmarked Posts".to_owned(), active_page: HomePages::Bookmarked }
         posts_el.into_iter()
     })
 }

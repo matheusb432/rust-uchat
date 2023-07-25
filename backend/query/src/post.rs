@@ -75,7 +75,7 @@ pub fn get(conn: &mut PgConnection, post_id: PostId) -> Result<Post, DieselError
     posts.filter(id.eq(post_id.as_uuid())).get_result(conn)
 }
 
-pub fn get_profile_posts(
+pub fn get_public_posts(
     conn: &mut PgConnection,
     user_id: UserId,
 ) -> Result<Vec<Post>, DieselError> {

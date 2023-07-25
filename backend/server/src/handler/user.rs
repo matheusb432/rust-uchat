@@ -9,9 +9,9 @@ use uchat_domain::{
 use uchat_endpoint::{
     user::{
         endpoint::{
-            CreateUser, CreateUserOk, Follow, FollowOk, GetMyProfile, GetMyProfileOk, IsFollowing,
-            IsFollowingOk, Login, LoginOk, UpdateProfile, UpdateProfileOk, ViewProfile,
-            ViewProfileOk,
+            CreateUser, CreateUserOk, FollowUser, FollowUserOk, GetMyProfile, GetMyProfileOk,
+            IsFollowing, IsFollowingOk, Login, LoginOk, UpdateProfile, UpdateProfileOk,
+            ViewProfile, ViewProfileOk,
         },
         types::{FollowAction, PublicUserProfile},
     },
@@ -36,7 +36,7 @@ pub fn to_public(user: User) -> ApiResult<PublicUserProfile> {
             .display_name
             .and_then(|name| DisplayName::new(name).ok()),
         handle: user.handle,
-        profile_image: None,
+        profile_image: user.profile_image.as_ref().map(|id| profile_id_to_url(id)),
         created_at: user.created_at,
         am_following: false,
     })
@@ -137,41 +137,6 @@ impl PublicApiRequest for Login {
 }
 
 #[async_trait]
-impl PublicApiRequest for ViewProfile {
-    type Response = (StatusCode, Json<ViewProfileOk>);
-
-    async fn process_request(
-        self,
-        DbConnection(mut conn): DbConnection,
-        _state: AppState,
-    ) -> ApiResult<Self::Response> {
-        let user_id = self.user_id;
-        // TODO create optimized query?
-        let profile_user = uchat_query::user::get_profile(&mut conn, user_id)?;
-        let profile_posts = {
-            let posts = uchat_query::post::get_profile_posts(&mut conn, user_id)?;
-            super::post::many_to_public(&mut conn, posts, None)
-        };
-
-        Ok((
-            StatusCode::OK,
-            Json(ViewProfileOk {
-                user_id: profile_user.id,
-                display_name: profile_user.display_name,
-                handle: profile_user.handle,
-                email: profile_user.email,
-                // TODO optimize - this is saving the data url instead of file url to DB
-                profile_image: profile_user
-                    .profile_image
-                    .as_ref()
-                    .map(|id| profile_id_to_url(id)),
-                posts: profile_posts,
-            }),
-        ))
-    }
-}
-
-#[async_trait]
 impl AuthorizedApiRequest for GetMyProfile {
     type Response = (StatusCode, Json<GetMyProfileOk>);
 
@@ -244,7 +209,6 @@ impl AuthorizedApiRequest for UpdateProfile {
     }
 }
 
-// TODO test & add follow/unfollow endpoint
 #[async_trait]
 impl AuthorizedApiRequest for IsFollowing {
     type Response = (StatusCode, Json<IsFollowingOk>);
@@ -263,8 +227,8 @@ impl AuthorizedApiRequest for IsFollowing {
 }
 
 #[async_trait]
-impl AuthorizedApiRequest for Follow {
-    type Response = (StatusCode, Json<FollowOk>);
+impl AuthorizedApiRequest for FollowUser {
+    type Response = (StatusCode, Json<FollowUserOk>);
 
     async fn process_request(
         self,
@@ -283,8 +247,53 @@ impl AuthorizedApiRequest for Follow {
 
         Ok((
             StatusCode::OK,
-            Json(FollowOk {
-                is_following: self.action.into(),
+            Json(FollowUserOk {
+                is_following: if self.action == FollowAction::Follow {
+                    true
+                } else {
+                    false
+                },
+            }),
+        ))
+    }
+}
+
+#[async_trait]
+impl AuthorizedApiRequest for ViewProfile {
+    type Response = (StatusCode, Json<ViewProfileOk>);
+
+    async fn process_request(
+        self,
+        DbConnection(mut conn): DbConnection,
+        session: UserSession,
+        _state: AppState,
+    ) -> ApiResult<Self::Response> {
+        let user_id = self.user_id;
+        // TODO create optimized query?
+        let profile_user = uchat_query::user::get_profile(&mut conn, user_id)?;
+        let profile_posts = {
+            let posts = uchat_query::post::get_public_posts(&mut conn, user_id)?;
+            super::post::many_to_public(&mut conn, posts, Some(&session))
+        };
+        let is_following = uchat_query::user::is_following(&mut conn, session.user_id, user_id)?;
+
+        Ok((
+            StatusCode::OK,
+            Json(ViewProfileOk {
+                profile: PublicUserProfile {
+                    id: profile_user.id,
+                    display_name: profile_user
+                        .display_name
+                        .and_then(|name| DisplayName::new(name).ok()),
+                    handle: profile_user.handle,
+                    profile_image: profile_user
+                        .profile_image
+                        .as_ref()
+                        .map(|id| profile_id_to_url(id)),
+                    created_at: profile_user.created_at,
+                    am_following: is_following,
+                },
+                posts: profile_posts,
             }),
         ))
     }

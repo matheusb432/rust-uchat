@@ -4,7 +4,10 @@ use dioxus::prelude::*;
 use uchat_domain::{self, UserFacingError};
 
 use crate::{
-    components::keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
+    components::{
+        keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
+        local_profile,
+    },
     fetch_json,
     prelude::*,
     toasty,
@@ -84,10 +87,11 @@ pub fn Login(cx: Scope) -> Element {
     let page_state = use_ref(cx, || page_state);
     let toaster = use_toaster(cx);
     let router = use_router(cx);
+    let local_profile = use_local_profile(cx);
 
     let form_onsubmit = async_handler!(
         &cx,
-        [api_client, page_state, router, toaster],
+        [api_client, page_state, router, toaster, local_profile],
         move |_| async move {
             // NOTE Using the `Login` here will shadow the `Login` from the upper scope
             use uchat_endpoint::user::endpoint::{Login, LoginOk};
@@ -119,6 +123,8 @@ pub fn Login(cx: Scope) -> Element {
                         session_id,
                         session_expires,
                     );
+                    local_profile.write().image = res.profile_image;
+                    local_profile.write().user_id = Some(res.user_id);
                     router.navigate_to(page::HOME);
                 }
                 Err(e) => {

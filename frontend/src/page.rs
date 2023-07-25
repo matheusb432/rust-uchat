@@ -16,6 +16,8 @@ pub use trending::Trending;
 pub use view_profile::ViewProfile;
 
 pub mod route {
+    use uchat_domain::ids::UserId;
+
     pub const ACCOUNT_REGISTER: &str = "/account/register";
     pub const ACCOUNT_LOGIN: &str = "/account/login";
     pub const HOME: &str = "/home";
@@ -27,4 +29,8 @@ pub mod route {
     pub const HOME_BOOKMARKED: &str = "/home/bookmarked";
     pub const PROFILE_EDIT: &str = "/profile/edit";
     pub const PROFILE_VIEW: &str = "/profile/view/:id";
+
+    pub fn profile_view(user_id: UserId) -> String {
+        PROFILE_VIEW.replace(":id", &user_id.to_string())
+    }
 }

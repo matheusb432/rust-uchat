@@ -89,9 +89,12 @@ pub fn Register(cx: Scope) -> Element {
     // ? It works by using a RefCell to store the value
     let page_state = use_ref(cx, || page_state);
     let router = use_router(cx);
+    let local_profile = use_local_profile(cx);
 
-    let form_onsubmit =
-        async_handler!(&cx, [api_client, page_state, router], move |_| async move {
+    let form_onsubmit = async_handler!(
+        &cx,
+        [api_client, page_state, router, local_profile],
+        move |_| async move {
             use uchat_endpoint::user::endpoint::{CreateUser, CreateUserOk};
             let request_data = {
                 use uchat_domain::{Password, Username};
@@ -117,11 +120,13 @@ pub fn Register(cx: Scope) -> Element {
                         res.session_id,
                         res.session_expires,
                     );
+                    local_profile.write().user_id = Some(res.user_id);
                     router.navigate_to(page::HOME);
                 }
                 Err(_err) => (),
             };
-        });
+        }
+    );
 
     // NOTE sync_handler! custom macro copies a `page_state` pointer, making it available to the event handler efficiently
     let username_oninput = sync_handler!([page_state], move |ev: FormEvent| {

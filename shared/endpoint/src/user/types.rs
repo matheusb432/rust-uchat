@@ -22,8 +22,8 @@ pub enum FollowAction {
 impl From<FollowAction> for bool {
     fn from(val: FollowAction) -> Self {
         match val {
-            FollowAction::Follow => true,
-            FollowAction::Unfollow => false,
+            FollowAction::Unfollow => true,
+            FollowAction::Follow => false,
         }
     }
 }

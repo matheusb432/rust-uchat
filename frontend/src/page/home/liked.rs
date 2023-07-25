@@ -25,10 +25,7 @@ pub fn Liked(cx: Scope) -> Element {
     let posts_el = post_manager.read().to_public_posts();
 
     cx.render(rsx! {
-        HomeAppBar {
-            title: "Liked Posts".to_owned(),
-            active_page: HomePages::Liked
-        }
+        HomeAppBar { title: "Liked Posts".to_owned(), active_page: HomePages::Liked }
         posts_el.into_iter()
     })
 }

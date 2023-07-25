@@ -41,10 +41,7 @@ pub fn Home(cx: Scope) -> Element {
     let posts_el = post_manager.read().to_public_posts();
 
     cx.render(rsx! {
-        HomeAppBar {
-            title: "Home".to_owned(),
-            active_page: HomePages::Home,
-        }
+        HomeAppBar { title: "Home".to_owned(), active_page: HomePages::Home }
         posts_el.into_iter()
     })
 }

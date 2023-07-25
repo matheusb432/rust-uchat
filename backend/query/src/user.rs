@@ -66,6 +66,7 @@ pub struct Profile {
     pub handle: String,
     pub email: Option<String>,
     pub profile_image: Option<String>,
+    pub created_at: DateTime<Utc>,
 }
 
 // ? More optimized query that only gets necessary data

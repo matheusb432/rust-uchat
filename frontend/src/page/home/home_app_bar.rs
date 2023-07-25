@@ -19,7 +19,7 @@ pub fn HomeAppBar(cx: Scope, title: String, active_page: HomePages) -> Element {
                 label: "Liked",
                 title: "Show liked posts",
                 disabled: is_liked,
-                append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_liked),
+                append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_liked)
             }
             AppBarImgButton {
                 click_handler: move |_| router.replace_route(page::HOME_BOOKMARKED, None, None),
@@ -27,7 +27,7 @@ pub fn HomeAppBar(cx: Scope, title: String, active_page: HomePages) -> Element {
                 label: "Saved",
                 title: "Show bookmarked posts",
                 disabled: is_bookmarked,
-                append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_bookmarked),
+                append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_bookmarked)
             }
             AppBarImgButton {
                 click_handler: move |_| router.replace_route(page::HOME, None, None),
@@ -35,7 +35,7 @@ pub fn HomeAppBar(cx: Scope, title: String, active_page: HomePages) -> Element {
                 label: "Home",
                 title: "Go to home page",
                 disabled: is_home,
-                append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_home),
+                append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_home)
             }
         }
     })

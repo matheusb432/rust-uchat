@@ -21,7 +21,6 @@ pub fn Trending(cx: Scope) -> Element {
         to_owned![api_client, toaster, post_manager];
         use_future(cx, (), |_| async move {
             use uchat_endpoint::post::endpoint::{TrendingPosts, TrendingPostsOk};
-            toasty!(toaster => info: "Retrieving trending posts...", 3);
             let response = fetch_json!(<TrendingPostsOk>, api_client, TrendingPosts);
             match response {
                 Ok(res) => post_manager.write().populate(res.posts.into_iter()),
@@ -32,5 +31,5 @@ pub fn Trending(cx: Scope) -> Element {
 
     let posts_el = post_manager.read().to_public_posts();
 
-    cx.render(rsx! { posts_el.into_iter() })
+    cx.render(rsx! {posts_el.into_iter()})
 }

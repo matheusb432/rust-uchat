@@ -23,7 +23,7 @@ use uchat_endpoint::{
         Vote,
     },
     user::endpoint::{
-        CreateUser, Follow, GetMyProfile, IsFollowing, Login, UpdateProfile, ViewProfile,
+        CreateUser, FollowUser, GetMyProfile, IsFollowing, Login, UpdateProfile, ViewProfile,
     },
     Endpoint,
 };
@@ -41,8 +41,7 @@ pub fn new_router(state: AppState) -> Router {
         // NOTE Dynamic route for images
         .route(&format!("/{img_route}:id"), get(handler::load_image))
         .route(CreateUser::URL, post(with_public_handler::<CreateUser>))
-        .route(Login::URL, post(with_public_handler::<Login>))
-        .route(ViewProfile::URL, post(with_public_handler::<ViewProfile>));
+        .route(Login::URL, post(with_public_handler::<Login>));
 
     let authorized_routes = Router::new()
         .route(NewPost::URL, post(with_handler::<NewPost>))
@@ -57,7 +56,8 @@ pub fn new_router(state: AppState) -> Router {
         .route(GetMyProfile::URL, post(with_handler::<GetMyProfile>))
         .route(UpdateProfile::URL, post(with_handler::<UpdateProfile>))
         .route(IsFollowing::URL, post(with_handler::<IsFollowing>))
-        .route(Follow::URL, post(with_handler::<Follow>))
+        .route(FollowUser::URL, post(with_handler::<FollowUser>))
+        .route(ViewProfile::URL, post(with_handler::<ViewProfile>))
         .layer(DefaultBodyLimit::disable())
         .layer(RequestBodyLimitLayer::new(EIGHT_MEGABYTES));
 
