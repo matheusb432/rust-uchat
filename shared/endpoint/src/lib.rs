@@ -97,6 +97,7 @@ route!("/profile/me" => user::endpoint::GetMyProfile);
 route!("/profile/update" => user::endpoint::UpdateProfile);
 // TODO refactor logic
 route!("/profile/following" => user::endpoint::IsFollowing);
+route!("/profile/follow" => user::endpoint::Follow);
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum Update<T> {

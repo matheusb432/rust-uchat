@@ -96,6 +96,36 @@ pub fn is_following(
         .map(super::post::is_one)
 }
 
+pub fn unfollow(
+    conn: &mut PgConnection,
+    user_id: UserId,
+    follows: UserId,
+) -> Result<super::post::DeleteStatus, DieselError> {
+    use crate::schema::followers;
+
+    diesel::delete(followers::table)
+        .filter(followers::user_id.eq(user_id))
+        .filter(followers::follows.eq(follows))
+        .execute(conn)
+        .map(super::post::DeleteStatus::new)
+}
+
+pub fn follow(
+    conn: &mut PgConnection,
+    user_id: UserId,
+    follows: UserId,
+) -> Result<(), DieselError> {
+    use crate::schema::followers;
+
+    diesel::insert_into(followers::table)
+        .values((
+            followers::user_id.eq(user_id),
+            followers::follows.eq(follows),
+        ))
+        .execute(conn)?;
+    Ok(())
+}
+
 pub fn find(conn: &mut PgConnection, username: &Username) -> Result<User, DieselError> {
     use crate::schema::users::dsl::*;
 

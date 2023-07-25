@@ -9,8 +9,9 @@ use dioxus::{html::fieldset, prelude::*};
 use uchat_domain::UserFacingError;
 use web_sys::HtmlInputElement;
 
-#[derive(Clone, Debug)]
-enum PreviewImageData {
+// TODO refactor to common module
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum PreviewImageData {
     DataUrl(String),
     Remote(String),
 }
@@ -309,7 +310,7 @@ pub fn EditProfile(cx: Scope) -> Element {
 
             let response = fetch_json!(<UpdateProfileOk>, api_client, request_data);
             match response {
-                Ok(res) => {
+                Ok(_) => {
                     toasty!(toaster => success: "Profile updated successfully!");
                     router.navigate_to(page::HOME);
                 }

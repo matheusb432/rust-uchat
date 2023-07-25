@@ -5,6 +5,8 @@ use url::Url;
 
 use crate::{post::types::PublicPost, Update};
 
+use super::types::FollowAction;
+
 #[derive(Clone, Deserialize, Serialize)]
 pub struct CreateUser {
     pub username: Username,
@@ -85,5 +87,16 @@ pub struct IsFollowing {
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct IsFollowingOk {
+    pub is_following: bool,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct Follow {
+    pub follows: UserId,
+    pub action: FollowAction,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct FollowOk {
     pub is_following: bool,
 }

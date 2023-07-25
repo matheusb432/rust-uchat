@@ -9,10 +9,11 @@ use uchat_domain::{
 use uchat_endpoint::{
     user::{
         endpoint::{
-            CreateUser, CreateUserOk, GetMyProfile, GetMyProfileOk, IsFollowing, IsFollowingOk,
-            Login, LoginOk, UpdateProfile, UpdateProfileOk, ViewProfile, ViewProfileOk,
+            CreateUser, CreateUserOk, Follow, FollowOk, GetMyProfile, GetMyProfileOk, IsFollowing,
+            IsFollowingOk, Login, LoginOk, UpdateProfile, UpdateProfileOk, ViewProfile,
+            ViewProfileOk,
         },
-        types::PublicUserProfile,
+        types::{FollowAction, PublicUserProfile},
     },
     Update,
 };
@@ -159,6 +160,7 @@ impl PublicApiRequest for ViewProfile {
                 display_name: profile_user.display_name,
                 handle: profile_user.handle,
                 email: profile_user.email,
+                // TODO optimize - this is saving the data url instead of file url to DB
                 profile_image: profile_user
                     .profile_image
                     .as_ref()
@@ -257,5 +259,33 @@ impl AuthorizedApiRequest for IsFollowing {
             uchat_query::user::is_following(&mut conn, session.user_id, self.follows)?;
 
         Ok((StatusCode::OK, Json(IsFollowingOk { is_following })))
+    }
+}
+
+#[async_trait]
+impl AuthorizedApiRequest for Follow {
+    type Response = (StatusCode, Json<FollowOk>);
+
+    async fn process_request(
+        self,
+        DbConnection(mut conn): DbConnection,
+        session: UserSession,
+        _state: AppState,
+    ) -> ApiResult<Self::Response> {
+        match self.action {
+            FollowAction::Follow => {
+                uchat_query::user::follow(&mut conn, session.user_id, self.follows)?;
+            }
+            FollowAction::Unfollow => {
+                uchat_query::user::unfollow(&mut conn, session.user_id, self.follows)?;
+            }
+        };
+
+        Ok((
+            StatusCode::OK,
+            Json(FollowOk {
+                is_following: self.action.into(),
+            }),
+        ))
     }
 }

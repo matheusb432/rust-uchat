@@ -368,6 +368,7 @@ impl AuthorizedApiRequest for LikedPosts {
         Ok((StatusCode::OK, Json(LikedPostsOk { posts })))
     }
 }
+
 #[async_trait]
 impl AuthorizedApiRequest for BookmarkedPosts {
     type Response = (StatusCode, Json<BookmarkedPostsOk>);
