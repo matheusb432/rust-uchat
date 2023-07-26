@@ -116,7 +116,7 @@ pub fn ViewProfile(cx: Scope) -> Element {
                 .map(|url| url.to_string())
                 .unwrap_or_else(|| "".to_string());
             let user_btns = local_profile.read().user_id.map(|id| if id == p.id {
-                rsx! { "" }
+                rsx! {""}
             } else {
                 rsx! {
                     button {
@@ -136,10 +136,7 @@ pub fn ViewProfile(cx: Scope) -> Element {
                     display_name_el,
                     span { "Handle: @{p.handle.clone()}" }
                 }
-                section {
-                    class: "flex gap-x-6 items-center justify-center mt-6 mb-8",
-                    user_btns
-                }
+                section { class: "flex gap-x-6 items-center justify-center mt-6 mb-8", user_btns }
             }
         }
         None => rsx! {"Loading..."},

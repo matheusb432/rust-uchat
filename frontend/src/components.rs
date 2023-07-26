@@ -1,4 +1,5 @@
 pub mod app_bar;
+pub mod bar_button;
 pub mod button;
 pub mod keyed_notification_box;
 pub mod local_profile;

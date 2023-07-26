@@ -83,11 +83,7 @@ pub fn PasswordInput<'a>(
 
 pub fn RegisterLink(cx: Scope) -> Element {
     cx.render(rsx! {
-        Link {
-            class: "link text-center",
-            to: page::ACCOUNT_REGISTER,
-            "Create Account"
-        }
+        Link { class: "link text-center", to: page::ACCOUNT_REGISTER, "Create Account" }
     })
 }
 
@@ -138,9 +134,7 @@ pub fn Login(cx: Scope) -> Element {
                     router.navigate_to(page::HOME);
                 }
                 Err(e) => {
-                    page_state.with_mut(|state| {
-                        state.server_errors.set("login", e.to_string())
-                    });
+                    page_state.with_mut(|state| state.server_errors.set("login", e.to_string()));
                     toasty!(toaster => error: format!("Failed to login: {e}"));
                 }
             }
@@ -167,30 +161,30 @@ pub fn Login(cx: Scope) -> Element {
         page_state.with_mut(|state| state.password.set(ev.value.clone()));
     });
 
-    let submit_btn_style =
-        maybe_class!("btn-disabled", !page_state.with(|state| state.can_submit()));
-
     cx.render(rsx! {
         form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: form_onsubmit,
-        KeyedNotificationBox {
-            legend: "Login Errors",
-            notifications: page_state.with(|state| state.server_errors.clone())
-        }
+            KeyedNotificationBox {
+                legend: "Login Errors",
+                notifications: page_state.with(|state| state.server_errors.clone())
+            }
             UsernameInput {
                 state: page_state.with(|state| state.username.clone()),
-                    oninput: username_oninput
+                oninput: username_oninput
             }
             PasswordInput {
                 state: page_state.with(|state| state.password.clone()),
                 oninput: password_oninput
             }
-            RegisterLink { }
+            RegisterLink {}
             KeyedNotificationBox {
                 legend: "Form Errors",
                 notifications: page_state.with(|state| state.form_errors.clone())
             }
-            
-            button { class: "btn {submit_btn_style}", r#type: "submit", disabled: !page_state.with(|state| state.can_submit()), "Login" }
+            Button {
+                r#type: BtnTypes::Submit,
+                disabled: !page_state.with(|state| state.can_submit()),
+                "Login"
+            }
         }
     })
 }

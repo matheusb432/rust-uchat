@@ -50,12 +50,8 @@ pub fn to_public(
             }
             Content::Poll(ref mut poll) => {
                 for (id, result) in query_post::get_poll_results(conn, post.id)?.results {
-                    // TODO refactor
-                    for choice in poll.choices.iter_mut() {
-                        if choice.id == id {
-                            choice.num_votes = result;
-                            break;
-                        }
+                    for choice in poll.choices.iter_mut().filter(|c| c.id == id).take(1) {
+                        choice.num_votes = result;
                     }
                 }
 
@@ -122,7 +118,6 @@ pub fn to_public(
     }
 }
 
-// TODO refactor in other methods
 pub fn many_to_public(
     conn: &mut AsyncConnection,
     posts: Vec<Post>,
@@ -181,19 +176,10 @@ impl AuthorizedApiRequest for TrendingPosts {
         session: UserSession,
         _state: AppState,
     ) -> ApiResult<Self::Response> {
-        use uchat_query::post as query_post;
-
-        let mut posts = vec![];
-
-        for post in query_post::get_trending(&mut conn)? {
-            let post_id = post.id;
-            match to_public(&mut conn, post, Some(&session)) {
-                Ok(post) => posts.push(post),
-                Err(e) => {
-                    tracing::error!(err = %e.err, post_id = ?post_id, "post contains invalid data");
-                }
-            }
-        }
+        let posts = {
+            let posts = uchat_query::post::get_trending(&mut conn)?;
+            super::post::many_to_public(&mut conn, posts, Some(&session))
+        };
 
         Ok((StatusCode::OK, Json(TrendingPostsOk { posts })))
     }
@@ -321,25 +307,15 @@ impl AuthorizedApiRequest for HomePosts {
         session: UserSession,
         _state: AppState,
     ) -> ApiResult<Self::Response> {
-        let posts = uchat_query::post::get_home_posts(&mut conn, session.user_id)?
-            .into_iter()
-            .filter_map(|p| {
-                let post_id = p.id;
-                match to_public(&mut conn, p, Some(&session)) {
-                    Ok(res) => Some(res),
-                    Err(e) => {
-                        tracing::error!(err = %e.err, post_id = ?post_id, "post contains invalid data");
-                        None
-                    }
-                }
-            })
-            .collect::<Vec<PublicPost>>();
+        let posts = {
+            let posts = uchat_query::post::get_home_posts(&mut conn, session.user_id)?;
+            super::post::many_to_public(&mut conn, posts, Some(&session))
+        };
 
         Ok((StatusCode::OK, Json(HomePostsOk { posts })))
     }
 }
 
-// TODO refactor common pattern of Trending, Home, Liked and Bookmarked posts to reuse closures
 #[async_trait]
 impl AuthorizedApiRequest for LikedPosts {
     type Response = (StatusCode, Json<LikedPostsOk>);
@@ -350,19 +326,10 @@ impl AuthorizedApiRequest for LikedPosts {
         session: UserSession,
         _state: AppState,
     ) -> ApiResult<Self::Response> {
-        let posts = uchat_query::post::get_liked_posts(&mut conn, session.user_id)?
-            .into_iter()
-            .filter_map(|p| {
-                let post_id = p.id;
-                match to_public(&mut conn, p, Some(&session)) {
-                    Ok(res) => Some(res),
-                    Err(e) => {
-                        tracing::error!(err = %e.err, post_id = ?post_id, "post contains invalid data");
-                        None
-                    }
-                }
-            })
-            .collect::<Vec<PublicPost>>();
+        let posts = {
+            let posts = uchat_query::post::get_liked_posts(&mut conn, session.user_id)?;
+            super::post::many_to_public(&mut conn, posts, Some(&session))
+        };
 
         Ok((StatusCode::OK, Json(LikedPostsOk { posts })))
     }
@@ -378,19 +345,10 @@ impl AuthorizedApiRequest for BookmarkedPosts {
         session: UserSession,
         _state: AppState,
     ) -> ApiResult<Self::Response> {
-        let posts = uchat_query::post::get_bookmarked_posts(&mut conn, session.user_id)?
-            .into_iter()
-            .filter_map(|p| {
-                let post_id = p.id;
-                match to_public(&mut conn, p, Some(&session)) {
-                    Ok(res) => Some(res),
-                    Err(e) => {
-                        tracing::error!(err = %e.err, post_id = ?post_id, "post contains invalid data");
-                        None
-                    }
-                }
-            })
-            .collect::<Vec<PublicPost>>();
+        let posts = {
+            let posts = uchat_query::post::get_bookmarked_posts(&mut conn, session.user_id)?;
+            super::post::many_to_public(&mut conn, posts, Some(&session))
+        };
 
         Ok((StatusCode::OK, Json(BookmarkedPostsOk { posts })))
     }

@@ -47,7 +47,7 @@ pub fn Sidebar(cx: Scope) -> Element {
     let overlay_el = rsx! {
         div {
             class: "fixed top-0 left-0 h-full navbar-bg-color transition z-[99] {overlay_class}",
-            onclick: move |_| sidebar.write().close(),
+            onclick: move |_| sidebar.write().close()
         }
     };
 
@@ -59,9 +59,8 @@ pub fn Sidebar(cx: Scope) -> Element {
         .unwrap_or_else(|| "");
 
     cx.render(rsx! {
-        overlay_el
-        div {
-            class: "{sidebar_width} z-[100] fixed top-0 left-0 h-full overflow-x-hidden flex flex-col navbar-bg-color transition-[width] duration-300 whitespace-nowrap",
+        overlay_el,
+        div { class: "{sidebar_width} z-[100] fixed top-0 left-0 h-full overflow-x-hidden flex flex-col navbar-bg-color transition-[width] duration-300 whitespace-nowrap",
             a {
                 class: "flex justify-center py-6 cursor-pointer",
                 onclick: move |_| {
@@ -71,10 +70,7 @@ pub fn Sidebar(cx: Scope) -> Element {
                         router.navigate_to(&url);
                     }
                 },
-                img {
-                    class: "profile-portrait-lg",
-                    src: "{profile_img_src}"
-                }
+                img { class: "profile-portrait-lg", src: "{profile_img_src}" }
             }
             a {
                 class: "sidebar-navlink border-t",

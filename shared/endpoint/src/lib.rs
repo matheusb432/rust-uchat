@@ -95,7 +95,6 @@ route!("/posts/liked" => post::endpoint::LikedPosts);
 route!("/posts/bookmarked" => post::endpoint::BookmarkedPosts);
 route!("/profile/me" => user::endpoint::GetMyProfile);
 route!("/profile/update" => user::endpoint::UpdateProfile);
-// TODO refactor logic
 route!("/profile/following" => user::endpoint::IsFollowing);
 route!("/user/follow" => user::endpoint::FollowUser);
 

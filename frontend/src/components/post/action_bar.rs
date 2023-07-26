@@ -23,9 +23,11 @@ where
     F: Fn(Event<MouseData>),
 {
     cx.render(rsx! {
-        div { class: "cursor-pointer", onclick: move |ev| {
-            (cx.props.handle_click)(ev);
-        },
+        div {
+            class: "cursor-pointer",
+            onclick: move |ev| {
+                (cx.props.handle_click)(ev);
+            },
             img { class: "actionbar-icon", src: "{cx.props.icon}" }
             div { class: "actionbar-icon-text", "{cx.props.label}" }
         }
@@ -85,8 +87,16 @@ pub fn LikeDislike(
     );
 
     cx.render(rsx! {
-        ActionBarIcon { icon: like_icon, label: "{likes}", handle_click: move |_| like_onclick(LikeStatus::Like) }
-        ActionBarIcon { icon: dislike_icon, label: "{dislikes}", handle_click: move |_| like_onclick(LikeStatus::Dislike) }
+        ActionBarIcon {
+            icon: like_icon,
+            label: "{likes}",
+            handle_click: move |_| like_onclick(LikeStatus::Like)
+        }
+        ActionBarIcon {
+            icon: dislike_icon,
+            label: "{dislikes}",
+            handle_click: move |_| like_onclick(LikeStatus::Dislike)
+        }
     })
 }
 

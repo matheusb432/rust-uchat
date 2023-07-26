@@ -37,11 +37,6 @@ pub fn Button<'a>(cx: Scope<'a, ButtonProps<'a>>) -> Element<'a> {
     let btn_style = maybe_class!("btn-disabled", disabled);
 
     cx.render(rsx! {
-        button {
-            class: "btn {btn_style}",
-            r#type: cx.props.r#type.into_type(),
-            disabled: disabled,
-            &cx.props.children
-        }
+        button { class: "btn {btn_style}", r#type: cx.props.r#type.into_type(), disabled: disabled, &cx.props.children }
     })
 }

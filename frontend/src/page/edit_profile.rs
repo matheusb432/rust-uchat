@@ -9,7 +9,6 @@ use dioxus::prelude::*;
 use uchat_domain::UserFacingError;
 use web_sys::HtmlInputElement;
 
-// TODO refactor to common module
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum PreviewImageData {
     DataUrl(String),

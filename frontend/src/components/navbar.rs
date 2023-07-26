@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::prelude::*;
+use crate::{components::bar_button::BarButton, prelude::*};
 use dioxus::prelude::*;
 
 #[inline_props]
@@ -12,21 +12,21 @@ pub fn NewPostPopup(cx: Scope, hide: UseState<bool>) -> Element {
         hide.set(true);
     };
 
-    // TODO refactor BUTTON_CLASS div to component
-    const BUTTON_CLASS: &str = "grid grid-cols-[20px_1fr] gap-4 pl-4 justify-center items-center w-full h-12 border-y navbar-border-color";
-
     cx.render( rsx!{
         div { class: "flex flex-col absolute right-0 bottom-[var(--navbar-height)] w-28 items-center {hide_class} navbar-bg-color text-white text-sm",
-            div { class: BUTTON_CLASS, onclick: move |_| nav_to(page::POST_NEW_POLL),
-                img { class: "invert", src: "/static/icons/icon-poll.svg" }
+            BarButton {
+                icon: "/static/icons/icon-poll.svg",
+                handle_click: move |_| nav_to(page::POST_NEW_POLL),
                 "Poll"
             }
-            div { class: BUTTON_CLASS, onclick: move |_| nav_to(page::POST_NEW_IMAGE),
-                img { class: "invert", src: "/static/icons/icon-image.svg" }
+            BarButton {
+                icon: "/static/icons/icon-image.svg",
+                handle_click: move |_| nav_to(page::POST_NEW_IMAGE),
                 "Image"
             }
-            div { class: BUTTON_CLASS, onclick: move |_| nav_to(page::POST_NEW_CHAT),
-                img { class: "invert", src: "/static/icons/icon-messages.svg" }
+            BarButton {
+                icon: "/static/icons/icon-messages.svg",
+                handle_click: move |_| nav_to(page::POST_NEW_CHAT),
                 "Chat"
             }
         }

@@ -54,17 +54,12 @@ pub fn Home(cx: Scope) -> Element {
                 }
             };
             rsx! {
-                div {
-                    class: "flex flex-col text-center justify-center h-[calc(100vh_-_var(--navbar-height)_-_var(--appbar-height))]",
-                    span {
-                        "Check out what's ", trending_link_el, ", and follow some users to get started."
-                    }
+                div { class: "flex flex-col text-center justify-center h-[calc(100vh_-_var(--navbar-height)_-_var(--appbar-height))]",
+                    span { "Check out what's ", trending_link_el, ", and follow some users to get started." }
                 }
             }
         } else {
-            rsx! {
-                posts.into_iter()
-            }
+            rsx! {posts.into_iter()}
         }
     };
 

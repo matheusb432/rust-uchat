@@ -69,9 +69,6 @@ pub fn QuickRespond(cx: Scope, opened: UseState<bool>) -> Element {
         }
     );
 
-    // TODO refactor button to own component to remove this type of logic duplication
-    let btn_style = maybe_class!("btn-disabled", !can_submit(message.get()));
-
     cx.render(rsx! {
         form { onsubmit: form_onsubmit, prevent_default: "onsubmit",
             MessageInput {
@@ -80,7 +77,14 @@ pub fn QuickRespond(cx: Scope, opened: UseState<bool>) -> Element {
                     message.set(ev.value.clone());
                 }
             }
-            div { class: "w-full flex justify-end", button { class: "mt-2 btn {btn_style}", r#type: "submit", disabled: !can_submit(message.get()), "Respond" } }
+            div {
+                class: "w-full flex justify-end mt-2",
+                Button {
+                    r#type: BtnTypes::Submit,
+                    disabled: !can_submit(message.get()),
+                    "Respond"
+                }
+            }
         }
     })
 }

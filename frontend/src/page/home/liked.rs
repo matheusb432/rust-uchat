@@ -39,17 +39,16 @@ pub fn Liked(cx: Scope) -> Element {
                 }
             };
             rsx! {
-                div {
-                    class: "flex flex-col text-center justify-center h-[calc(100vh_-_var(--navbar-height)_-_var(--appbar-height))]",
+                div { class: "flex flex-col text-center justify-center h-[calc(100vh_-_var(--navbar-height)_-_var(--appbar-height))]",
                     span {
-                        "You don't have any liked posts. Check out what's ", trending_link_el, ", and follow some users to get started."
+                        "You don't have any liked posts. Check out what's "
+                        trending_link_el,
+                        ", and follow some users to get started."
                     }
                 }
             }
         } else {
-            rsx! {
-                posts.into_iter()
-            }
+            rsx! {posts.into_iter()}
         }
     };
 

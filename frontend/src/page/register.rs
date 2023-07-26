@@ -90,11 +90,7 @@ pub fn PasswordInput<'a>(
 
 pub fn LoginLink(cx: Scope) -> Element {
     cx.render(rsx! {
-        Link {
-            class: "link text-center",
-            to: page::ACCOUNT_LOGIN,
-            "Existing User Login"
-        }
+        Link { class: "link text-center", to: page::ACCOUNT_LOGIN, "Existing User Login" }
     })
 }
 
@@ -163,19 +159,15 @@ pub fn Register(cx: Scope) -> Element {
         });
     });
 
-    // TODO refactor
-    let submit_btn_style =
-        maybe_class!("btn-disabled", !page_state.with(|state| state.can_submit()));
-
     // NOTE .with() passes an immutable reference of the state
     // * state: page_state.with(|state| state.username.clone()),
     // ? With the oninput event handler, this effectively creates 2-way databinding on the input
     cx.render(rsx! {
         form { class: "flex flex-col gap-5", prevent_default: "onsubmit", onsubmit: form_onsubmit,
-        KeyedNotificationBox {
-            legend: "Registration Errors",
-            notifications: page_state.with(|state| state.server_errors.clone())
-        }
+            KeyedNotificationBox {
+                legend: "Registration Errors",
+                notifications: page_state.with(|state| state.server_errors.clone())
+            }
             UsernameInput {
                 state: page_state.with(|state| state.username.clone()),
                 oninput: username_oninput
@@ -184,12 +176,11 @@ pub fn Register(cx: Scope) -> Element {
                 state: page_state.with(|state| state.password.clone()),
                 oninput: password_oninput
             }
-            LoginLink { }
+            LoginLink {}
             KeyedNotificationBox {
                 legend: "Form Errors",
                 notifications: page_state.with(|state| state.form_errors.clone())
             }
-            // TODO test
             Button {
                 r#type: BtnTypes::Submit,
                 disabled: !page_state.with(|state| state.can_submit()),

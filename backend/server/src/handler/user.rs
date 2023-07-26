@@ -117,14 +117,14 @@ impl PublicApiRequest for Login {
             tracing::span!(tracing::Level::INFO, "logging in", user = %self.username.as_ref())
                 .entered();
 
-        // TODO refactor to remove duplication
-        let hash = uchat_query::user::get_password_hash(&mut conn, &self.username)
-            .map_err(|_| ServerErr::wrong_password())?;
-        let hash = uchat_crypto::password::deserialize_hash(&hash)
-            .map_err(|_| ServerErr::wrong_password())?;
+        let check_password = || -> ApiResult<()> {
+            let hash = uchat_query::user::get_password_hash(&mut conn, &self.username)?;
+            let hash = uchat_crypto::password::deserialize_hash(&hash)?;
 
-        uchat_crypto::verify_password(self.password, &hash)
-            .map_err(|_| ServerErr::wrong_password())?;
+            uchat_crypto::verify_password(self.password, &hash)?;
+            Ok(())
+        };
+        check_password().map_err(|_| ServerErr::wrong_password())?;
 
         let user = uchat_query::user::find(&mut conn, &self.username)
             .map_err(|_| ServerErr::missing_login())?;

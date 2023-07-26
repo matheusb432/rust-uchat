@@ -32,7 +32,6 @@ private_key.base64
 *.pdb
 
 # IDE
-**/.vscode
 **/.idea
 **/.gradle
 *.iml
@@ -51,4 +50,3 @@ frontend/.npm/
 **/debug/
 **/target/
 **/*.rs.bk
-
