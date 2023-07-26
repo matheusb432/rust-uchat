@@ -80,7 +80,6 @@ pub fn Poll<'a>(cx: Scope<'a>, post_id: PostId, content: &'a EndpointPoll) -> El
         ids
     };
 
-    // TODO update vote bar on click instead of on page refresh
     let choices_el = content.choices.iter().map(|choice| {
         let percent = if total_votes > 0 {
             let percent = (choice.num_votes as f64 / total_votes as f64) * 100.0;

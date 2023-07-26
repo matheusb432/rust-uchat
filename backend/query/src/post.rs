@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use uchat_domain::ids::{PollChoiceId, PostId, UserId};
 use uchat_endpoint::post::types::VoteCast;
 
+use crate::util::{is_one, DeleteStatus};
 use crate::{schema, DieselError};
 
 #[derive(Clone, Debug, DieselNewType, Serialize, Deserialize)]
@@ -141,22 +142,6 @@ pub fn get_bookmark(
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum DeleteStatus {
-    Deleted,
-    NotFound,
-}
-
-impl DeleteStatus {
-    pub fn new(count: usize) -> Self {
-        if count > 0 {
-            DeleteStatus::Deleted
-        } else {
-            DeleteStatus::NotFound
-        }
-    }
-}
-
 pub fn delete_bookmark(
     conn: &mut PgConnection,
     user_id: UserId,
@@ -284,13 +269,6 @@ pub fn boost(
             .set(boosted_at.eq(when))
             .execute(conn)
             .map(|_| ())
-    }
-}
-
-pub(crate) fn is_one(n: Option<i64>) -> bool {
-    match n {
-        Some(n) => n == 1,
-        None => false,
     }
 }
 

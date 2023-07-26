@@ -43,6 +43,7 @@ mod prelude {
     pub use crate::components::post::PublicPostEntry;
     pub use crate::components::sidebar::{use_sidebar, SidebarManager};
     pub use crate::components::toaster::use_toaster;
+    pub use crate::components::{BtnTypes, Button};
 
     pub use dioxus_router::{use_route, use_router};
 }

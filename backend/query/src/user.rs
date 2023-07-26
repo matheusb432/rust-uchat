@@ -6,6 +6,7 @@ use uchat_domain::ids::UserId;
 use uchat_domain::Username;
 use uchat_endpoint::Update;
 
+use crate::util::{is_one, DeleteStatus};
 use crate::{schema, DieselError, QueryError};
 
 pub fn new<T: AsRef<str>>(
@@ -93,22 +94,21 @@ pub fn is_following(
         .select(count(followers::user_id))
         .get_result(conn)
         .optional()
-        // TODO refator to common utils?
-        .map(super::post::is_one)
+        .map(is_one)
 }
 
 pub fn unfollow(
     conn: &mut PgConnection,
     user_id: UserId,
     follows: UserId,
-) -> Result<super::post::DeleteStatus, DieselError> {
+) -> Result<DeleteStatus, DieselError> {
     use crate::schema::followers;
 
     diesel::delete(followers::table)
         .filter(followers::user_id.eq(user_id))
         .filter(followers::follows.eq(follows))
         .execute(conn)
-        .map(super::post::DeleteStatus::new)
+        .map(DeleteStatus::new)
 }
 
 pub fn follow(

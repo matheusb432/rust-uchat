@@ -78,3 +78,26 @@ pub async fn new_async_pool<S: AsRef<str>>(url: S) -> Result<AsyncConnectionPool
         .map(AsyncConnectionPool)
         .map_err(|e| QueryError::Pool(e.to_string()))
 }
+
+pub(crate) fn is_one(n: Option<i64>) -> bool {
+    match n {
+        Some(n) => n == 1,
+        None => false,
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum DeleteStatus {
+    Deleted,
+    NotFound,
+}
+
+impl DeleteStatus {
+    pub fn new(count: usize) -> Self {
+        if count > 0 {
+            DeleteStatus::Deleted
+        } else {
+            DeleteStatus::NotFound
+        }
+    }
+}

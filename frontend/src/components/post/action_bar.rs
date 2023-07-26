@@ -7,6 +7,31 @@ use uchat_endpoint::post::types::LikeStatus;
 
 use super::use_post_manager;
 
+#[derive(Props)]
+struct ActionBarIconProps<'a, F>
+where
+    F: Fn(Event<MouseData>),
+{
+    icon: &'a str,
+    #[props(into)]
+    label: &'a str,
+    handle_click: F,
+}
+
+fn ActionBarIcon<'a, F>(cx: Scope<'a, ActionBarIconProps<'a, F>>) -> Element<'a>
+where
+    F: Fn(Event<MouseData>),
+{
+    cx.render(rsx! {
+        div { class: "cursor-pointer", onclick: move |ev| {
+            (cx.props.handle_click)(ev);
+        },
+            img { class: "actionbar-icon", src: "{cx.props.icon}" }
+            div { class: "actionbar-icon-text", "{cx.props.label}" }
+        }
+    })
+}
+
 #[inline_props]
 pub fn LikeDislike(
     cx: Scope,
@@ -59,16 +84,9 @@ pub fn LikeDislike(
         }
     );
 
-    // TODO refactor icons to own components
     cx.render(rsx! {
-        div { class: "cursor-pointer", onclick: move |_| like_onclick(LikeStatus::Like),
-            img { class: "actionbar-icon", src: "{like_icon}" }
-            div { class: "actionbar-icon-text", "{likes}" }
-        }
-        div { class: "cursor-pointer", onclick: move |_| like_onclick(LikeStatus::Dislike),
-            img { class: "actionbar-icon", src: "{dislike_icon}" }
-            div { class: "actionbar-icon-text", "{dislikes}" }
-        }
+        ActionBarIcon { icon: like_icon, label: "{likes}", handle_click: move |_| like_onclick(LikeStatus::Like) }
+        ActionBarIcon { icon: dislike_icon, label: "{dislikes}", handle_click: move |_| like_onclick(LikeStatus::Dislike) }
     })
 }
 

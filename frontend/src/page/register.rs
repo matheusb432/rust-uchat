@@ -5,7 +5,10 @@ use dioxus_router::Link;
 use uchat_domain::{self, UserFacingError};
 
 use crate::{
-    components::keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
+    components::{
+        keyed_notification_box::{KeyedNotificationBox, KeyedNotifications},
+        Button,
+    },
     fetch_json,
     prelude::*,
     util::ApiClient,
@@ -111,17 +114,10 @@ pub fn Register(cx: Scope) -> Element {
             use uchat_endpoint::user::endpoint::{CreateUser, CreateUserOk};
             let request_data = {
                 use uchat_domain::{Password, Username};
-                CreateUser {
-                    // TODO refactor?
-                    username: Username::new(
-                        page_state.with(|state| state.username.current().to_string()),
-                    )
-                    .unwrap(),
-                    password: Password::new(
-                        page_state.with(|state| state.password.current().to_string()),
-                    )
-                    .unwrap(),
-                }
+                page_state.with(|s| CreateUser {
+                    username: Username::new(s.username.current().to_string()).unwrap(),
+                    password: Password::new(s.password.current().to_string()).unwrap(),
+                })
             };
 
             let response = fetch_json!(<CreateUserOk>, api_client,  request_data);
@@ -145,26 +141,26 @@ pub fn Register(cx: Scope) -> Element {
 
     // NOTE sync_handler! custom macro copies a `page_state` pointer, making it available to the event handler efficiently
     let username_oninput = sync_handler!([page_state], move |ev: FormEvent| {
-        // TODO refactor to single with_mut?
-        if let Err(e) = uchat_domain::Username::new(&ev.value) {
-            // TODO refactor to simply "username"?
-            page_state.with_mut(|state| state.form_errors.set("bad-username", e.formatted_error()))
-        } else {
-            page_state.with_mut(|state| state.form_errors.remove("bad-username"))
-        }
-
         // NOTE with_mut references the inner state value so that it's possible to mutate it
-        page_state.with_mut(|state| state.username.set(ev.value.clone()));
+        page_state.with_mut(|s| {
+            if let Err(e) = uchat_domain::Username::new(&ev.value) {
+                s.form_errors.set("username", e.formatted_error())
+            } else {
+                s.form_errors.remove("username")
+            };
+            s.username.set(ev.value.clone());
+        });
     });
 
     let password_oninput = sync_handler!([page_state], move |ev: FormEvent| {
-        if let Err(e) = uchat_domain::Password::new(&ev.value) {
-            page_state.with_mut(|state| state.form_errors.set("bad-password", e.formatted_error()))
-        } else {
-            page_state.with_mut(|state| state.form_errors.remove("bad-password"))
-        }
-
-        page_state.with_mut(|state| state.password.set(ev.value.clone()));
+        page_state.with_mut(|s| {
+            if let Err(e) = uchat_domain::Password::new(&ev.value) {
+                s.form_errors.set("password", e.formatted_error())
+            } else {
+                s.form_errors.remove("password")
+            };
+            s.password.set(ev.value.clone());
+        });
     });
 
     // TODO refactor
@@ -193,10 +189,9 @@ pub fn Register(cx: Scope) -> Element {
                 legend: "Form Errors",
                 notifications: page_state.with(|state| state.form_errors.clone())
             }
-            button {
-                class: "btn {submit_btn_style}",
-                // ? since `type` is a reserved keyword, `r#` is necessary to set it
-                r#type: "submit",
+            // TODO test
+            Button {
+                r#type: BtnTypes::Submit,
                 disabled: !page_state.with(|state| state.can_submit()),
                 "Signup"
             }

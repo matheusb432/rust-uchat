@@ -58,7 +58,6 @@ pub fn Sidebar(cx: Scope) -> Element {
         .map(|url| url.as_str())
         .unwrap_or_else(|| "");
 
-    // TODO refactor navlinks to components
     cx.render(rsx! {
         overlay_el
         div {
