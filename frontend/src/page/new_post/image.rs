@@ -173,7 +173,11 @@ pub fn NewImage(cx: Scope) -> Element {
             ImageInput { page_state: page_state.clone() }
             ImagePreview { page_state: page_state.clone() }
             CaptionInput { page_state: page_state.clone() }
-            button { class: "btn {submit_btn_style}", r#type: "submit", disabled: is_invalid, "Post" }
+            Button::<fn()> {
+                r#type: BtnTypes::Submit,
+                disabled: is_invalid,
+                "Post"
+            }
         }
     })
 }

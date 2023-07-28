@@ -14,7 +14,7 @@ pub fn NewPostAppBar(cx: Scope, title: String, active_page: NewPostPages) -> Ele
     cx.render(rsx! {
         AppBar { title: "{title}",
             AppBarImgButton {
-                click_handler: move |_| router.replace_route(page::POST_NEW_CHAT, None, None),
+                handle_onclick: move |_| router.replace_route(page::POST_NEW_CHAT, None, None),
                 img: "/static/icons/icon-messages.svg",
                 label: "Chat",
                 title: "Post a new chat",
@@ -22,7 +22,7 @@ pub fn NewPostAppBar(cx: Scope, title: String, active_page: NewPostPages) -> Ele
                 append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_chat)
             }
             AppBarImgButton {
-                click_handler: move |_| router.replace_route(page::POST_NEW_IMAGE, None, None),
+                handle_onclick: move |_| router.replace_route(page::POST_NEW_IMAGE, None, None),
                 img: "/static/icons/icon-image.svg",
                 label: "Image",
                 title: "Post a new image",
@@ -30,7 +30,7 @@ pub fn NewPostAppBar(cx: Scope, title: String, active_page: NewPostPages) -> Ele
                 append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_image)
             }
             AppBarImgButton {
-                click_handler: move |_| router.replace_route(page::POST_NEW_POLL, None, None),
+                handle_onclick: move |_| router.replace_route(page::POST_NEW_POLL, None, None),
                 img: "/static/icons/icon-poll.svg",
                 label: "Poll",
                 title: "Post a new poll",
@@ -38,7 +38,7 @@ pub fn NewPostAppBar(cx: Scope, title: String, active_page: NewPostPages) -> Ele
                 append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_poll)
             }
             AppBarImgButton {
-                click_handler: move |_| router.pop_route(),
+                handle_onclick: move |_| router.pop_route(),
                 img: "/static/icons/icon-back.svg",
                 label: "Back",
                 title: "Go to the previous page"

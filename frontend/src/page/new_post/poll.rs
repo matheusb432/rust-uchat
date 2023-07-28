@@ -116,13 +116,13 @@ pub fn PollChoices(cx: Scope, page_state: UseRef<PageState>) -> Element {
                         value: "{choice}"
                     }
                     div { class: "text-right {wrong_len}", "{choice.len()}/{max_chars}" }
-                    button {
-                        class: "btn p-0 h-full bg-red-700",
-                        prevent_default: "onclick",
-                        onclick: move |_| {
+                    Button {
+                        class: "p-0 h-full bg-red-700",
+                        r#type: BtnTypes::Button,
+                        handle_onclick: move || {
                             page_state.with_mut(|state| state.poll_choices.remove(&key));
                         },
-                        "X"
+                        "X" 
                     }
                 }
             }
@@ -134,10 +134,13 @@ pub fn PollChoices(cx: Scope, page_state: UseRef<PageState>) -> Element {
             "Poll Choices"
             ol { class: "list-decimal ml-4 flex flex-col gap-2", choices.into_iter() }
             div { class: "flex flex-row justify-end",
-                button {
-                    class: "btn w-1/2",
-                    prevent_default: "onclick",
-                    onclick: move |_| { page_state.with_mut(|state| state.push_choice("")) },
+
+                Button {
+                    class: "w-1/2",
+                    r#type: BtnTypes::Button,
+                    handle_onclick: move || {
+                        page_state.with_mut(|state| state.push_choice(""));
+                    },
                     "+"
                 }
             }
@@ -199,14 +202,16 @@ pub fn NewPoll(cx: Scope) -> Element {
         }
     );
 
-    let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
-
     cx.render(rsx! {
         NewPostAppBar { title: "New Poll".to_owned(), active_page: super::NewPostPages::Poll }
         form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
             HeadlineInput { page_state: page_state.clone() }
             PollChoices { page_state: page_state.clone() }
-            button { class: "btn {submit_btn_style}", r#type: "submit", disabled: is_invalid, "Post" }
+            Button::<fn()> {
+                r#type: BtnTypes::Submit,
+                disabled: is_invalid,
+                "Post"
+            }
         }
     })
 }

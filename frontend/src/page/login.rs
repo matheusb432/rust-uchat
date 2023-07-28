@@ -180,7 +180,7 @@ pub fn Login(cx: Scope) -> Element {
                 legend: "Form Errors",
                 notifications: page_state.with(|state| state.form_errors.clone())
             }
-            Button {
+            Button::<fn()> {
                 r#type: BtnTypes::Submit,
                 disabled: !page_state.with(|state| state.can_submit()),
                 "Login"

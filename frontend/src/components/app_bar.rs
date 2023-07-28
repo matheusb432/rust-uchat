@@ -12,7 +12,7 @@ where
     F: Fn(Event<MouseData>),
 {
     append_class: Option<&'a str>,
-    click_handler: Option<F>,
+    handle_onclick: Option<F>,
     disabled: Option<bool>,
     img: &'a str,
     label: &'a str,
@@ -40,7 +40,7 @@ where
                 if disabled {
                     return;
                 }
-                if let Some(callback) = &cx.props.click_handler {
+                if let Some(callback) = &cx.props.handle_onclick {
                     callback(ev);
                 }
             },

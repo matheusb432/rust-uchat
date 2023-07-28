@@ -313,14 +313,12 @@ pub fn EditProfile(cx: Scope) -> Element {
             }
         }
     );
-
     let disable_submit = page_state.with(|state| state.form_errors.has_messages());
-    let submit_btn_style = maybe_class!("btn-disabled", disable_submit);
 
     cx.render(rsx! {
         AppBar { title: "Edit Profile",
             AppBarImgButton {
-                click_handler: move |_| router.pop_route(),
+                handle_onclick: move |_| router.pop_route(),
                 img: "/static/icons/icon-back.svg",
                 label: "Back",
                 title: "Go to the previous page"
@@ -337,8 +335,17 @@ pub fn EditProfile(cx: Scope) -> Element {
             KeyedNotificationBox { notifications: page_state.clone().read().form_errors.clone() }
 
             div { class: "flex justify-end gap-3",
-                button { class: "btn", prevent_default: "onclick", onclick: move |_| router.pop_route(), "Cancel" }
-                button { class: "btn {submit_btn_style}", r#type: "submit", disabled: disable_submit, "Save" }
+                Button {
+                    r#type: BtnTypes::Button,
+                    handle_onclick: move || router.pop_route(),
+                    "Cancel" 
+                }
+                // NOTE the ::<fn()> turbofish is needed to disambiguate the type of the Button
+                Button::<fn()> {
+                    r#type: BtnTypes::Submit,
+                    disabled: disable_submit,
+                    "Save"
+                }
             }
         }
     })

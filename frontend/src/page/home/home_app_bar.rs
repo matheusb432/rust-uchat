@@ -14,7 +14,7 @@ pub fn HomeAppBar(cx: Scope, title: String, active_page: HomePages) -> Element {
     cx.render(rsx! {
         AppBar { title: "{title}",
             AppBarImgButton {
-                click_handler: move |_| router.replace_route(page::HOME_LIKED, None, None),
+                handle_onclick: move |_| router.replace_route(page::HOME_LIKED, None, None),
                 img: "/static/icons/icon-like.svg",
                 label: "Liked",
                 title: "Show liked posts",
@@ -22,7 +22,7 @@ pub fn HomeAppBar(cx: Scope, title: String, active_page: HomePages) -> Element {
                 append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_liked)
             }
             AppBarImgButton {
-                click_handler: move |_| router.replace_route(page::HOME_BOOKMARKED, None, None),
+                handle_onclick: move |_| router.replace_route(page::HOME_BOOKMARKED, None, None),
                 img: "/static/icons/icon-bookmark.svg",
                 label: "Saved",
                 title: "Show bookmarked posts",
@@ -30,7 +30,7 @@ pub fn HomeAppBar(cx: Scope, title: String, active_page: HomePages) -> Element {
                 append_class: maybe_class!(app_bar::BUTTON_SELECTED, is_bookmarked)
             }
             AppBarImgButton {
-                click_handler: move |_| router.replace_route(page::HOME, None, None),
+                handle_onclick: move |_| router.replace_route(page::HOME, None, None),
                 img: "/static/icons/icon-home.svg",
                 label: "Home",
                 title: "Go to home page",

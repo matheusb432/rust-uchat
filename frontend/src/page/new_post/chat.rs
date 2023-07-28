@@ -138,7 +138,11 @@ pub fn NewChat(cx: Scope) -> Element {
         form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
             MessageInput { page_state: page_state.clone() }
             HeadlineInput { page_state: page_state.clone() }
-            button { class: "btn {submit_btn_style}", r#type: "submit", disabled: is_invalid, "Post" }
+            Button::<fn()> {
+                r#type: BtnTypes::Submit,
+                disabled: is_invalid,
+                "Post"
+            }
         }
     })
 }

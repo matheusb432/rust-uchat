@@ -15,7 +15,7 @@ where
     icon: &'a str,
     #[props(into)]
     label: &'a str,
-    handle_click: F,
+    handle_onclick: F,
 }
 
 fn ActionBarIcon<'a, F>(cx: Scope<'a, ActionBarIconProps<'a, F>>) -> Element<'a>
@@ -26,7 +26,7 @@ where
         div {
             class: "cursor-pointer",
             onclick: move |ev| {
-                (cx.props.handle_click)(ev);
+                (cx.props.handle_onclick)(ev);
             },
             img { class: "actionbar-icon", src: "{cx.props.icon}" }
             div { class: "actionbar-icon-text", "{cx.props.label}" }
@@ -90,12 +90,12 @@ pub fn LikeDislike(
         ActionBarIcon {
             icon: like_icon,
             label: "{likes}",
-            handle_click: move |_| like_onclick(LikeStatus::Like)
+            handle_onclick: move |_| like_onclick(LikeStatus::Like)
         }
         ActionBarIcon {
             icon: dislike_icon,
             label: "{dislikes}",
-            handle_click: move |_| like_onclick(LikeStatus::Dislike)
+            handle_onclick: move |_| like_onclick(LikeStatus::Dislike)
         }
     })
 }

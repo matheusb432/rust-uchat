@@ -11,7 +11,7 @@ where
     F: Fn(Event<MouseData>),
 {
     icon: &'static str,
-    handle_click: F,
+    handle_onclick: F,
     children: Element<'a>,
 }
 
@@ -22,7 +22,7 @@ where
     cx.render( rsx!{
                 div { 
                     class: "grid grid-cols-[20px_1fr] gap-4 pl-4 justify-center items-center w-full h-12 border-y navbar-border-color", 
-                    onclick: &cx.props.handle_click,
+                    onclick: &cx.props.handle_onclick,
                     img { class: "invert", src: "{cx.props.icon}" }
                     &cx.props.children
                 }

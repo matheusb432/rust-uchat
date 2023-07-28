@@ -16,17 +16,17 @@ pub fn NewPostPopup(cx: Scope, hide: UseState<bool>) -> Element {
         div { class: "flex flex-col absolute right-0 bottom-[var(--navbar-height)] w-28 items-center {hide_class} navbar-bg-color text-white text-sm",
             BarButton {
                 icon: "/static/icons/icon-poll.svg",
-                handle_click: move |_| nav_to(page::POST_NEW_POLL),
+                handle_onclick: move |_| nav_to(page::POST_NEW_POLL),
                 "Poll"
             }
             BarButton {
                 icon: "/static/icons/icon-image.svg",
-                handle_click: move |_| nav_to(page::POST_NEW_IMAGE),
+                handle_onclick: move |_| nav_to(page::POST_NEW_IMAGE),
                 "Image"
             }
             BarButton {
                 icon: "/static/icons/icon-messages.svg",
-                handle_click: move |_| nav_to(page::POST_NEW_CHAT),
+                handle_onclick: move |_| nav_to(page::POST_NEW_CHAT),
                 "Chat"
             }
         }

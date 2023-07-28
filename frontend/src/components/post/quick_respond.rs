@@ -79,7 +79,7 @@ pub fn QuickRespond(cx: Scope, opened: UseState<bool>) -> Element {
             }
             div {
                 class: "w-full flex justify-end mt-2",
-                Button {
+                Button::<fn()> {
                     r#type: BtnTypes::Submit,
                     disabled: !can_submit(message.get()),
                     "Respond"

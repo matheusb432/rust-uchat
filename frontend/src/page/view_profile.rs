@@ -115,18 +115,23 @@ pub fn ViewProfile(cx: Scope) -> Element {
                 .profile_image
                 .map(|url| url.to_string())
                 .unwrap_or_else(|| "".to_string());
-            let user_btns = local_profile.read().user_id.map(|id| if id == p.id {
-                rsx! {""}
-            } else {
-                rsx! {
-                    button {
-                        class: "btn",
-                        prevent_default: "onclick",
-                        // TODO should open post with `direct_message_to` set
-                        onclick: move |_| router.pop_route(),
-                        "Send Message"
+            let user_btns = local_profile.read().user_id.map(|id| {
+                if id == p.id {
+                    rsx! {""}
+                } else {
+                    // TODO should open post with `direct_message_to` set
+                    rsx! {
+                        Button {
+                            r#type: BtnTypes::Button,
+                            handle_onclick: || router.pop_route(),
+                            "Send Message"
+                        }
+                        Button {
+                            r#type: BtnTypes::Button,
+                            handle_onclick: move || follow_onclick(()),
+                            follow_btn_label
+                        }
                     }
-                    button { class: "btn", prevent_default: "onclick", onclick: follow_onclick, follow_btn_label }
                 }
             });
 
@@ -145,7 +150,7 @@ pub fn ViewProfile(cx: Scope) -> Element {
     cx.render(rsx! {
         AppBar { title: "View Profile",
             AppBarImgButton {
-                click_handler: move |_| router.pop_route(),
+                handle_onclick: move |_| router.pop_route(),
                 img: "/static/icons/icon-back.svg",
                 label: "Back",
                 title: "Go to the previous page"

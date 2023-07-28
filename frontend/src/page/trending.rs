@@ -33,7 +33,7 @@ pub fn Trending(cx: Scope) -> Element {
     cx.render(rsx! {
         AppBar { title: "Trending Posts",
             AppBarImgButton {
-                click_handler: move |_| router.pop_route(),
+                handle_onclick: move |_| router.pop_route(),
                 img: "/static/icons/icon-back.svg",
                 label: "Back",
                 title: "Go to the previous page"

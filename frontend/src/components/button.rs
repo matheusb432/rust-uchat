@@ -6,14 +6,21 @@ use crate::prelude::*;
 
 pub const BUTTON_SELECTED: &str = "border-slate-600";
 
-#[derive(Props, Debug)]
-pub struct ButtonProps<'a> {
+// NOTE structs can have default generic types, the same will not be the case for functions
+#[derive(Props)]
+pub struct ButtonProps<'a, F = fn()>
+where
+    F: Fn(),
+{
     #[props(default = false)]
     selected: bool,
     #[props(default = false)]
     disabled: bool,
     #[props(default = BtnTypes::Button)]
     r#type: BtnTypes,
+    #[props(default = None)]
+    handle_onclick: Option<F>,
+    class: Option<&'a str>,
     children: Element<'a>,
 }
 
@@ -32,11 +39,25 @@ impl BtnTypes {
     }
 }
 
-pub fn Button<'a>(cx: Scope<'a, ButtonProps<'a>>) -> Element<'a> {
+pub fn Button<'a, F>(cx: Scope<'a, ButtonProps<'a, F>>) -> Element<'a>
+where
+    F: Fn(),
+{
     let disabled = cx.props.disabled;
     let btn_style = maybe_class!("btn-disabled", disabled);
+    let class = &cx.props.class.unwrap_or_default();
 
     cx.render(rsx! {
-        button { class: "btn {btn_style}", r#type: cx.props.r#type.into_type(), disabled: disabled, &cx.props.children }
+        button {
+            class: "btn {btn_style} {class}",
+            r#type: cx.props.r#type.into_type(),
+            disabled: disabled,
+            onclick: move |_| {
+                if let Some(callback) = &cx.props.handle_onclick {
+                    callback();
+                }
+            },
+            &cx.props.children
+        }
     })
 }
