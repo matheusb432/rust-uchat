@@ -131,18 +131,12 @@ pub fn NewChat(cx: Scope) -> Element {
         }
     );
 
-    let submit_btn_style = maybe_class!("btn-disabled", is_invalid);
-
     cx.render(rsx! {
         NewPostAppBar { title: "New Chat".to_owned(), active_page: super::NewPostPages::Chat }
         form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
             MessageInput { page_state: page_state.clone() }
             HeadlineInput { page_state: page_state.clone() }
-            Button::<fn()> {
-                r#type: BtnTypes::Submit,
-                disabled: is_invalid,
-                "Post"
-            }
+            Button::<fn()> { r#type: BtnTypes::Submit, disabled: is_invalid, "Post" }
         }
     })
 }

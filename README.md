@@ -53,6 +53,12 @@ To lint the code, run:
 cargo clippy
 ```
 
+To fix the code, run:
+
+```bash
+just fix
+```
+
 ## Notes in Code
 
 - To visualize notes right next to their example implementations that are scattered throughout this repository, I'd recommend using the VS Code extension `Todo Tree`, and then just filter for any comment with a `NOTE` prefix to it.

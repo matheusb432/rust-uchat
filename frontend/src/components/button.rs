@@ -4,16 +4,12 @@ use dioxus::prelude::*;
 
 use crate::prelude::*;
 
-pub const BUTTON_SELECTED: &str = "border-slate-600";
-
 // NOTE structs can have default generic types, the same will not be the case for functions
 #[derive(Props)]
 pub struct ButtonProps<'a, F = fn()>
 where
     F: Fn(),
 {
-    #[props(default = false)]
-    selected: bool,
     #[props(default = false)]
     disabled: bool,
     #[props(default = BtnTypes::Button)]

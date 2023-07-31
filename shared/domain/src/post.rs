@@ -25,7 +25,6 @@ impl UserFacingError for HeadlineError {
 pub struct PollHeadline(String);
 
 impl PollHeadline {
-    // TODO refactor to be the source of truth for both the type validation & frontend ui display
     pub const MAX_CHARS: usize = 50;
 }
 

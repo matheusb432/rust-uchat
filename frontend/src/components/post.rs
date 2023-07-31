@@ -2,6 +2,7 @@
 
 pub mod action_bar;
 pub mod content;
+pub mod posts_list;
 pub mod quick_respond;
 
 use crate::{

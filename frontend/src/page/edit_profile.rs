@@ -26,7 +26,6 @@ pub struct PageState {
     profile_image: Option<PreviewImageData>,
 }
 
-// TODO Refactor ImageInput and ImagePreview to reuse code
 #[inline_props]
 pub fn ImageInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
     let toaster = use_toaster(cx);

@@ -64,7 +64,6 @@ pub fn UsernameInput<'a>(
     })
 }
 
-// TODO refactor to reusable component
 #[inline_props]
 pub fn PasswordInput<'a>(
     cx: Scope<'a>,

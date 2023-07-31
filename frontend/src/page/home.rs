@@ -15,6 +15,7 @@ pub enum HomePages {
     Home,
 }
 
+use crate::components::post::posts_list::PostsList;
 use crate::components::post::use_post_manager;
 use crate::components::toaster::use_toaster;
 use crate::page::home::home_app_bar::HomeAppBar;
@@ -24,7 +25,6 @@ use dioxus::prelude::*;
 pub fn Home(cx: Scope) -> Element {
     let toaster = use_toaster(cx);
     let api_client = ApiClient::global();
-    let router = use_router(cx);
     let post_manager = use_post_manager(cx);
 
     let _fetch_posts = {
@@ -41,30 +41,8 @@ pub fn Home(cx: Scope) -> Element {
         })
     };
 
-    let posts_el = {
-        let posts = post_manager.read().to_public_posts();
-        if posts.is_empty() {
-            let trending_link_el = rsx! {
-                a {
-                    class: "link",
-                    onclick: move |_| {
-                        router.navigate_to(page::POSTS_TRENDING);
-                    },
-                    "trending"
-                }
-            };
-            rsx! {
-                div { class: "flex flex-col text-center justify-center h-[calc(100vh_-_var(--navbar-height)_-_var(--appbar-height))]",
-                    span { "Check out what's ", trending_link_el, ", and follow some users to get started." }
-                }
-            }
-        } else {
-            rsx! {posts.into_iter()}
-        }
-    };
-
     cx.render(rsx! {
         HomeAppBar { title: "Home".to_owned(), active_page: HomePages::Home }
-        posts_el
+        PostsList { empty_message: "You don't have any posts in your feed".to_owned() }
     })
 }

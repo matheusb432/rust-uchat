@@ -2,7 +2,9 @@
 
 use std::collections::BTreeMap;
 
-use crate::{fetch_json, page::new_post_app_bar::NewPostAppBar, prelude::*, ret_if, toasty};
+use crate::{
+    fetch_json, new_btree_map, page::new_post_app_bar::NewPostAppBar, prelude::*, ret_if, toasty,
+};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use uchat_domain::{
@@ -24,13 +26,7 @@ impl Default for PageState {
     fn default() -> Self {
         Self {
             headline: "".to_owned(),
-            poll_choices: {
-                // TODO refactor to use  macro
-                let mut map = BTreeMap::new();
-                map.insert(0, "".to_owned());
-                map.insert(1, "".to_owned());
-                map
-            },
+            poll_choices: new_btree_map!(0 => "".to_owned(), 1 => "".to_owned()),
             next_id: 2,
         }
     }
@@ -63,7 +59,6 @@ impl PageState {
 }
 
 #[inline_props]
-// TODO refactor to text input
 pub fn HeadlineInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
     use uchat_domain::post::PollHeadline;
 
@@ -96,14 +91,13 @@ pub fn HeadlineInput(cx: Scope, page_state: UseRef<PageState>) -> Element {
 #[inline_props]
 pub fn PollChoices(cx: Scope, page_state: UseRef<PageState>) -> Element {
     let choices = page_state.read().poll_choices.iter()
-    .map(|(&key, choice)| {
+    .map(|(&key, choice)| { 
         let choice = choice.clone();
         let max_chars = PollChoiceDescription::MAX_CHARS;
         let wrong_len = maybe_class!(
             "err-text-color",
             PollChoiceDescription::new(&choice).is_err()
         );
-        // TODO refactor to remove duplication
         rsx! {
             li { key: "{key}",
                 div { class: "grid grid-cols-[1fr_3rem_3rem] w-full gap-2 items-center h-8",
@@ -122,7 +116,7 @@ pub fn PollChoices(cx: Scope, page_state: UseRef<PageState>) -> Element {
                         handle_onclick: move || {
                             page_state.with_mut(|state| state.poll_choices.remove(&key));
                         },
-                        "X" 
+                        "X"
                     }
                 }
             }
@@ -207,11 +201,7 @@ pub fn NewPoll(cx: Scope) -> Element {
         form { class: "flex flex-col gap-4", onsubmit: form_onsubmit, prevent_default: "onsubmit",
             HeadlineInput { page_state: page_state.clone() }
             PollChoices { page_state: page_state.clone() }
-            Button::<fn()> {
-                r#type: BtnTypes::Submit,
-                disabled: is_invalid,
-                "Post"
-            }
+            Button::<fn()> { r#type: BtnTypes::Submit, disabled: is_invalid, "Post" }
         }
     })
 }

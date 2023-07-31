@@ -1,5 +1,4 @@
 [package]
-# TODO rename to uchat_api?
 name = "uchat_endpoint"
 version = "0.1.0"
 edition = "2021"

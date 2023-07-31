@@ -145,6 +145,18 @@ macro_rules! toasty {
 
 pub use toasty;
 
+#[macro_export]
+macro_rules! new_btree_map {
+    ($($key: expr => $value: expr),*) =>
+    {{
+        let mut map = ::std::collections::BTreeMap::new();
+        $(
+            map.insert($key, $value);
+        )*
+        map
+    }}
+}
+
 pub fn window() -> Window {
     web_sys::window().expect("missing Window object")
 }

@@ -23,8 +23,7 @@ pub fn ViewProfile(cx: Scope) -> Element {
     let route = use_route(cx);
     let user_id = route
         .segment("id")
-        .map(|id| UserId::from_str(id).ok())
-        .flatten();
+        .and_then(|id| UserId::from_str(id).ok());
 
     let Some(user_id) = user_id else {
         return cx.render(rsx! {
@@ -47,7 +46,7 @@ pub fn ViewProfile(cx: Scope) -> Element {
 
             post_manager.write().clear();
             let view_res =
-                fetch_json!(<ViewProfileOk>, api_client, ViewProfile { user_id: user_id });
+                fetch_json!(<ViewProfileOk>, api_client, ViewProfile { user_id });
             match view_res {
                 Ok(view_res) => {
                     post_manager.write().populate(view_res.posts.into_iter());
@@ -119,18 +118,9 @@ pub fn ViewProfile(cx: Scope) -> Element {
                 if id == p.id {
                     rsx! {""}
                 } else {
-                    // TODO should open post with `direct_message_to` set
                     rsx! {
-                        Button {
-                            r#type: BtnTypes::Button,
-                            handle_onclick: || router.pop_route(),
-                            "Send Message"
-                        }
-                        Button {
-                            r#type: BtnTypes::Button,
-                            handle_onclick: move || follow_onclick(()),
-                            follow_btn_label
-                        }
+                        Button { r#type: BtnTypes::Button, handle_onclick: || router.pop_route(), "Send Message" }
+                        Button { r#type: BtnTypes::Button, handle_onclick: move || follow_onclick(()), follow_btn_label }
                     }
                 }
             });

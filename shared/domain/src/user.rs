@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::UserFacingError;
 
-// TODO refactor error handling to improve reusability
 // NOTE Using the `nutype` crate to easily add field validation
 #[nutype(validate(present, min_len = 3, max_len = 30))]
 #[derive(AsRef, Clone, Debug, Serialize, Deserialize, PartialEq)]
