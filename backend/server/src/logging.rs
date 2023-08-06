@@ -15,7 +15,7 @@ pub struct Verbosity {
 
 impl From<Verbosity> for LevelFilter {
     fn from(v: Verbosity) -> Self {
-        // default to INFO (3)
+        // ? default to INFO (3)
         let verbosity = (3 + v.verbose).saturating_sub(v.quieter);
         match verbosity {
             0 => LevelFilter::OFF,

@@ -18,7 +18,7 @@ impl AsyncConnectionPool {
     pub async fn new<S: AsRef<str>>(url: S) -> Result<Self, QueryError> {
         let pool = new_async_pool(url).await?;
         {
-            // check connection
+            // ? check connection
             let _ = pool
                 .0
                 .get()

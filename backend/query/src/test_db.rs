@@ -3,12 +3,12 @@ use diesel::{Connection, PgConnection, RunQueryDsl};
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn reset_database(connection_url: &str) {
-    // connect to "postgres" database
+    // ? connect to "postgres" database
     let (database, postgres_url) = query_helper::change_database_of_url(connection_url, "postgres");
 
     let mut conn = PgConnection::establish(&postgres_url).unwrap();
 
-    // make the test database
+    // ? make the test database
     if let Err(e) = query_helper::create_database(&database).execute(&mut conn) {
         eprintln!("database creation error: {e}");
     }
@@ -29,16 +29,16 @@ pub fn new_connection() -> PgConnection {
         let connection_url = dotenvy::var("TEST_DATABASE_URL")
             .expect("TEST_DATABASE_URL must be set in order to run tests");
 
-        // make new database if needed
+        // ? make new database if needed
         if PgConnection::establish(&connection_url).is_err() {
             reset_database(&connection_url);
         }
 
-        // connect to the test database
+        // ? connect to the test database
         PgConnection::establish(&connection_url).unwrap()
     };
 
-    // run migrations if needed
+    // ? run migrations if needed
     MIGRATION_GUARD.call_once(|| {
         if let Err(e) = conn.run_pending_migrations(MIGRATIONS) {
             use diesel::result::DatabaseErrorKind;
@@ -56,7 +56,7 @@ pub fn new_connection() -> PgConnection {
         }
     });
 
-    // test transactions are never committed
+    // ? test transactions are never committed
     conn.begin_test_transaction().unwrap();
     conn
 }

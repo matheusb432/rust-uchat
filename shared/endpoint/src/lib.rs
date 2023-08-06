@@ -18,16 +18,6 @@ pub struct RequestFailed {
     pub msg: String,
 }
 
-// ? Alternative route macro
-// usage: route!(<NewPost>, "/post/new");
-// macro_rules! route {
-//     (<$for:ident>,$url:literal) => {
-//         impl Endpoint for $for {
-//             const URL: &'static str = $url;
-//         }
-//     };
-// }
-
 /// Macro for implementing Endpoint trait for a type
 ///
 /// # Example

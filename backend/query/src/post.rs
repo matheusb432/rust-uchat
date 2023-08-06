@@ -468,11 +468,9 @@ pub mod tests {
 
     #[test]
     fn new_and_get() -> Result<()> {
-        // setup
         let mut conn = test_db::new_connection();
         let user1 = test_user::new_user(&mut conn, "user 1");
 
-        // new post
         let content = test_post::new_chat("test message");
         let post = Post::new(user1.id, content, NewPostOptions::default())
             .expect("failed to create new post struct");
